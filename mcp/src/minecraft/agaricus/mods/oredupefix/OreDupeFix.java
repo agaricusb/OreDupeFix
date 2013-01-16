@@ -11,17 +11,17 @@ import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkMod;
 import cpw.mods.fml.relauncher.ReflectionHelper;
+import ic2.api.Ic2Recipes;
 import ic2.core.AdvRecipe;
 import ic2.core.AdvShapelessRecipe;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.CraftingManager;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.item.crafting.ShapedRecipes;
-import net.minecraft.item.crafting.ShapelessRecipes;
+import net.minecraft.item.crafting.*;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
+import thermalexpansion.api.crafting.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Mod(modid = "OreDupeFix", name = "OreDupeFix", version = "1.0")
 @NetworkMod(clientSideRequired = false, serverSideRequired = false)
@@ -32,7 +32,7 @@ public class OreDupeFix {
 
         // TODO: load preferred ores from config
 
-        // Iterate recipes
+        // Crafting recipes
         List recipeList = CraftingManager.getInstance().getRecipeList();
         for(Object recipe: recipeList) {
             if (!(recipe instanceof IRecipe)) {
@@ -59,6 +59,24 @@ public class OreDupeFix {
                 setRecipeOutput(iRecipe, newOutput);
             }
         }
+
+        // Furnace recipes
+        Map<List<Integer>, ItemStack> metaSmeltingList = FurnaceRecipes.smelting().getMetaSmeltingList(); // metadata-sensitive
+        Map smeltingList = FurnaceRecipes.smelting().getSmeltingList();
+
+        // IC2 machines
+        List<Map.Entry<ItemStack, ItemStack>> compressorRecipes = Ic2Recipes.getCompressorRecipes();
+        List<Map.Entry<ItemStack, ItemStack>> extractorRecipes = Ic2Recipes.getExtractorRecipes();
+        List<Map.Entry<ItemStack, ItemStack>> maceratorRecipes = Ic2Recipes.getMaceratorRecipes();
+        List<Map.Entry<ItemStack, Float>> scrapboxDrops = Ic2Recipes.getScrapboxDrops();
+
+        // TE machines
+        ICrucibleRecipe[] iCrucibleRecipes = CraftingManagers.crucibleManager.getRecipeList();
+        IFurnaceRecipe[] iFurnaceRecipes = CraftingManagers.furnaceManager.getRecipeList();
+        IPulverizerRecipe[] iPulverizerRecipes = CraftingManagers.pulverizerManager.getRecipeList();
+        ISawmillRecipe[] iSawmillRecipes = CraftingManagers.sawmillManager.getRecipeList();
+        ISmelterRecipe[] iSmelterRecipes = CraftingManagers.smelterManager.getRecipeList();
+        //ISmelterRecipe[] iFillRecipes F= CraftingManagers.transposerManager.getFillRecipeList(); // TODO
     }
 
     public static void setRecipeOutput(IRecipe iRecipe, ItemStack output) {
