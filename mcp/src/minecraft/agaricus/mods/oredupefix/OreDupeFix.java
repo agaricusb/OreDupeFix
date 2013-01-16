@@ -1,26 +1,15 @@
 package agaricus.mods.oredupefix;
 
-import com.google.common.collect.Multimap;
 import cpw.mods.fml.common.Mod;
-import cpw.mods.fml.common.Mod.Init;
-import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.Mod.PostInit;
-import cpw.mods.fml.common.Mod.PreInit;
-import cpw.mods.fml.common.ModContainer;
-import cpw.mods.fml.common.SidedProxy;
-import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
-import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkMod;
-import cpw.mods.fml.common.registry.BlockProxy;
 import cpw.mods.fml.common.registry.GameData;
-import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.ItemData;
 import cpw.mods.fml.relauncher.ReflectionHelper;
 import ic2.api.Ic2Recipes;
 import ic2.core.AdvRecipe;
 import ic2.core.AdvShapelessRecipe;
-import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.*;
 import net.minecraftforge.oredict.OreDictionary;
@@ -39,17 +28,23 @@ public class OreDupeFix {
     /**
      * Map from ore name to mod ID preferred by user
      */
-    public static HashMap<String, String> preferredOreMods;
+    public static HashMap<String, String> oreName2PreferredMod;
 
     /**
      * Map from ore name to ItemStack preferred by user, from their preferred mod
      */
-    public static HashMap<String, ItemStack> preferredOreItems;
+    public static HashMap<String, ItemStack> oreName2PreferredItem;
+
+    /**
+     * Map from each ore ItemStack to
+     */
+    public static HashMap<ItemStack, ItemStack> oreItem2PreferredItem;
 
     @PostInit
     public static void postInit(FMLPostInitializationEvent event) {
         System.out.println("loading OreDupeFix!");
 
+        loadPreferredOres();
 
         // Crafting recipes
         List recipeList = CraftingManager.getInstance().getRecipeList();
@@ -68,14 +63,22 @@ public class OreDupeFix {
 
             //System.out.println("craft output: " + output.getDisplayName() + " = " + output.itemID + ":" + output.getItemDamage() + " class " + iRecipe.getClass());
 
-            int itemID = output.itemID;
-            int damage = output.getItemDamage();
-
-            if (itemID == 5267 && damage == 5) {  // RP2 copper
-                // TODO: set output
-                ItemStack newOutput = new ItemStack(20257, 1, 64); // TE
-                setRecipeOutput(iRecipe, newOutput);
+            int oreID = OreDictionary.getOreID(output);
+            if (oreID == -1) {
+                // this isn't an ore
+                continue;
             }
+
+            String oreName = OreDictionary.getOreName(oreID);
+
+            ItemStack newOutput = oreName2PreferredItem.get(oreName);
+            if (newOutput == null) {
+                // no preference
+                continue;
+            }
+
+            System.out.println("Modifying recipe "+iRecipe+" replacing "+output.itemID+":"+output.getItemDamage()+" -> "+newOutput.itemID+":"+newOutput.getItemDamage());
+            setRecipeOutput(iRecipe, newOutput);
         }
 
         // Furnace recipes
@@ -119,20 +122,20 @@ public class OreDupeFix {
         // TODO: bc
     }
 
-    public void loadPreferredOres() {
+    public static void loadPreferredOres() {
          // TODO: load preferred ores from config
-        preferredOreMods = new HashMap<String, String>();
-        preferredOreMods.put("ingotCopper", "ThermalExpansion");
-        preferredOreMods.put("ingotTin", "ThermalExpansion");
-        preferredOreMods.put("ingotBronze", "IC2");
-        preferredOreMods.put("dustBronze", "ThermalExpansion");
-        preferredOreMods.put("dustIron", "ThermalExpansion");
-        preferredOreMods.put("dustTin", "ThermalExpansion");
-        preferredOreMods.put("dustSilver", "ThermalExpansion");
-        preferredOreMods.put("dustCopper", "ThermalExpansion");
-        preferredOreMods.put("dustGold", "ThermalExpansion");
+        oreName2PreferredMod = new HashMap<String, String>();
+        oreName2PreferredMod.put("ingotCopper", "ThermalExpansion");
+        oreName2PreferredMod.put("ingotTin", "ThermalExpansion");
+        oreName2PreferredMod.put("ingotBronze", "IC2");
+        oreName2PreferredMod.put("dustBronze", "ThermalExpansion");
+        oreName2PreferredMod.put("dustIron", "ThermalExpansion");
+        oreName2PreferredMod.put("dustTin", "ThermalExpansion");
+        oreName2PreferredMod.put("dustSilver", "ThermalExpansion");
+        oreName2PreferredMod.put("dustCopper", "ThermalExpansion");
+        oreName2PreferredMod.put("dustGold", "ThermalExpansion");
 
-        preferredOreItems = new HashMap<String, ItemStack>();
+        oreName2PreferredItem = new HashMap<String, ItemStack>();
 
         // Get registered ores and associated mods
         Map<Integer, ItemData> idMap = ReflectionHelper.getPrivateValue(GameData.class, null, "idMap");
@@ -140,7 +143,7 @@ public class OreDupeFix {
         //dumpOreDict();
 
         // Map ore dict name to preferred item, given mod ID
-        for (Map.Entry<String, String> entry : preferredOreMods.entrySet()) {
+        for (Map.Entry<String, String> entry : oreName2PreferredMod.entrySet()) {
             String oreName = entry.getKey();
             String preferredModID = entry.getValue();
 
@@ -151,7 +154,7 @@ public class OreDupeFix {
                 String modID = itemData.getModId();
 
                 if (preferredModID.equals(modID)) {
-                    preferredOreItems.put(oreName, oreItem);
+                    oreName2PreferredItem.put(oreName, oreItem);
                     found = true;
                     break;
                 }
@@ -162,9 +165,9 @@ public class OreDupeFix {
         }
 
         // Show ore preferences
-        for (String oreName : preferredOreMods.keySet()) {
-            String modID = preferredOreMods.get(oreName);
-            ItemStack itemStack = preferredOreItems.get(oreName);
+        for (String oreName : oreName2PreferredMod.keySet()) {
+            String modID = oreName2PreferredMod.get(oreName);
+            ItemStack itemStack = oreName2PreferredItem.get(oreName);
             if (itemStack != null) {
                 System.out.println("Preferring ore name "+oreName+" from mod "+modID+" = "+itemStack.itemID+":"+ itemStack.getItemDamage());
             }
@@ -175,7 +178,7 @@ public class OreDupeFix {
     /**
      * Dump ore dictionary for debugging
      */
-    public void dumpOreDict() {
+    public static void dumpOreDict() {
         Map<Integer, ItemData> idMap = ReflectionHelper.getPrivateValue(GameData.class, null, "idMap");
 
         String[] oreNames = OreDictionary.getOreNames();
