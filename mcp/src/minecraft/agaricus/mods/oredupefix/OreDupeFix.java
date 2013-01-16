@@ -68,19 +68,9 @@ public class OreDupeFix {
                 continue;
             }
 
-            //System.out.println("craft output: " + output.getDisplayName() + " = " + output.itemID + ":" + output.getItemDamage() + " class " + iRecipe.getClass());
-
-            int oreID = OreDictionary.getOreID(output);
-            if (oreID == -1) {
-                // this isn't an ore
-                continue;
-            }
-
-            String oreName = OreDictionary.getOreName(oreID);
-
-            ItemStack newOutput = oreName2PreferredItem.get(oreName);
+            ItemStack newOutput = getPreferredOre(output);
             if (newOutput == null) {
-                // no preference
+                // do not replace
                 continue;
             }
 
@@ -89,14 +79,29 @@ public class OreDupeFix {
         }
 
         // Furnace recipes
-        Map<List<Integer>, ItemStack> metaSmeltingList = FurnaceRecipes.smelting().getMetaSmeltingList(); // metadata-sensitive
-        Map smeltingList = FurnaceRecipes.smelting().getSmeltingList();
+        Map<List<Integer>, ItemStack> metaSmeltingList = FurnaceRecipes.smelting().getMetaSmeltingList(); // metadata-sensitive; (itemID,metadata) to ItemStack
+        Map smeltingList = FurnaceRecipes.smelting().getSmeltingList(); // itemID to ItemStack
+        // TODO
 
         // IC2 machines
         List<Map.Entry<ItemStack, ItemStack>> compressorRecipes = Ic2Recipes.getCompressorRecipes();
         List<Map.Entry<ItemStack, ItemStack>> extractorRecipes = Ic2Recipes.getExtractorRecipes();
-        List<Map.Entry<ItemStack, ItemStack>> maceratorRecipes = Ic2Recipes.getMaceratorRecipes();
         List<Map.Entry<ItemStack, Float>> scrapboxDrops = Ic2Recipes.getScrapboxDrops();
+        // TODO
+
+        List<Map.Entry<ItemStack, ItemStack>> maceratorRecipes = Ic2Recipes.getMaceratorRecipes();
+        for (int i = 0; i < maceratorRecipes.size(); i += 1) {
+            Map.Entry<ItemStack, ItemStack> entry = maceratorRecipes.get(i);
+            ItemStack input = entry.getKey();
+            ItemStack output = entry.getValue();
+
+            ItemStack newOutput = getPreferredOre(output);
+            if (newOutput == null) {
+                continue;
+            }
+
+            entry.setValue(newOutput);
+        }
 
         // TE machines
         ICrucibleRecipe[] iCrucibleRecipes = CraftingManagers.crucibleManager.getRecipeList();
@@ -105,6 +110,31 @@ public class OreDupeFix {
         ISawmillRecipe[] iSawmillRecipes = CraftingManagers.sawmillManager.getRecipeList();
         ISmelterRecipe[] iSmelterRecipes = CraftingManagers.smelterManager.getRecipeList();
         //ISmelterRecipe[] iFillRecipes F= CraftingManagers.transposerManager.getFillRecipeList(); // TODO
+    }
+
+    /**
+     *
+     * @param output The existing ore dictionary item
+     * @return A new ore dictionary item, for the name ore but preferred by the user
+     */
+    public static ItemStack getPreferredOre(ItemStack output) {
+        //System.out.println("craft output: " + output.getDisplayName() + " = " + output.itemID + ":" + output.getItemDamage() + " class " + iRecipe.getClass());
+
+        int oreID = OreDictionary.getOreID(output);
+        if (oreID == -1) {
+            // this isn't an ore
+            return null;
+        }
+
+        String oreName = OreDictionary.getOreName(oreID);
+
+        ItemStack newOutput = oreName2PreferredItem.get(oreName);
+        if (newOutput == null) {
+            // no preference, do not replace
+            return null;
+        }
+
+        return newOutput;
     }
 
     public static void setRecipeOutput(IRecipe iRecipe, ItemStack output) {
