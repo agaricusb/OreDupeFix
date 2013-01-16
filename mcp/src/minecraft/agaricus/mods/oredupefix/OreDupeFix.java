@@ -1,25 +1,32 @@
 package agaricus.mods.oredupefix;
 
+import com.google.common.collect.Multimap;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.Init;
 import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.Mod.PostInit;
 import cpw.mods.fml.common.Mod.PreInit;
+import cpw.mods.fml.common.ModContainer;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkMod;
+import cpw.mods.fml.common.registry.BlockProxy;
+import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.ReflectionHelper;
 import ic2.api.Ic2Recipes;
 import ic2.core.AdvRecipe;
 import ic2.core.AdvShapelessRecipe;
+import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.*;
+import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 import thermalexpansion.api.crafting.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +38,25 @@ public class OreDupeFix {
         System.out.println("loading OreDupeFix!");
 
         // TODO: load preferred ores from config
+        String[] oreNames = OreDictionary.getOreNames();
+        for (String oreName : oreNames) {
+            System.out.println("ore: " + oreName);
+            ArrayList<ItemStack> oreItems = OreDictionary.getOres(oreName);
+
+            Multimap<ModContainer, BlockProxy> blockRegistry = ReflectionHelper.getPrivateValue(GameRegistry.class, null, "blockRegistry");
+
+            for (Map.Entry<ModContainer, BlockProxy> entry : blockRegistry.entries()) {
+                ModContainer modContainer = entry.getKey();
+                BlockProxy blockProxy = entry.getValue();
+
+                if (!(blockProxy instanceof Block)) {
+                    continue;
+                }
+                Block block = (Block)blockProxy;
+
+                System.out.println("mod "+modContainer.getModId() + ": " + block.getBlockName());
+            }
+        }
 
         // Crafting recipes
         List recipeList = CraftingManager.getInstance().getRecipeList();
