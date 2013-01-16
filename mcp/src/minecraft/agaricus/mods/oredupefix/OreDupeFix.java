@@ -40,19 +40,19 @@ public class OreDupeFix {
         System.out.println("loading OreDupeFix!");
 
         // TODO: load preferred ores from config
+
+        // Get registered ores and associated mods
+        Map<Integer, ItemData> idMap = ReflectionHelper.getPrivateValue(GameData.class, null, "idMap");
+
         String[] oreNames = OreDictionary.getOreNames();
         for (String oreName : oreNames) {
             System.out.println("ore: " + oreName);
             ArrayList<ItemStack> oreItems = OreDictionary.getOres(oreName);
-        }
+            for (ItemStack oreItem : oreItems) {
+                ItemData itemData = idMap.get(oreItem.itemID);
 
-        Map<Integer, ItemData> idMap = ReflectionHelper.getPrivateValue(GameData.class, null, "idMap");
-
-        for (Map.Entry<Integer, ItemData> entry : idMap.entrySet()) {
-            int itemID = entry.getKey();
-            ItemData data = entry.getValue();
-
-            System.out.println("item "+itemID+" owned by "+data.getModId());
+                System.out.println("- " + oreItem.itemID + " = " + itemData.getModId());
+            }
         }
 
         // Crafting recipes
