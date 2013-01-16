@@ -1,8 +1,11 @@
 package agaricus.mods.oredupefix;
 
+import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.PostInit;
+import cpw.mods.fml.common.Mod.PreInit;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
+import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkMod;
 import cpw.mods.fml.common.registry.GameData;
 import cpw.mods.fml.common.registry.ItemData;
@@ -12,6 +15,9 @@ import ic2.core.AdvRecipe;
 import ic2.core.AdvShapelessRecipe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.*;
+import net.minecraftforge.common.ConfigCategory;
+import net.minecraftforge.common.Configuration;
+import net.minecraftforge.common.Property;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
@@ -21,6 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 
 @Mod(modid = "OreDupeFix", name = "OreDupeFix", version = "1.0")
 @NetworkMod(clientSideRequired = false, serverSideRequired = false)
@@ -122,19 +129,62 @@ public class OreDupeFix {
         // TODO: bc
     }
 
-    public static void loadPreferredOres() {
-         // TODO: load preferred ores from config
+    @PreInit
+    public static void preInit(FMLPreInitializationEvent event) {
         oreName2PreferredMod = new HashMap<String, String>();
-        oreName2PreferredMod.put("ingotCopper", "ThermalExpansion");
-        oreName2PreferredMod.put("ingotTin", "ThermalExpansion");
-        oreName2PreferredMod.put("ingotBronze", "IC2");
-        oreName2PreferredMod.put("dustBronze", "ThermalExpansion");
-        oreName2PreferredMod.put("dustIron", "ThermalExpansion");
-        oreName2PreferredMod.put("dustTin", "ThermalExpansion");
-        oreName2PreferredMod.put("dustSilver", "ThermalExpansion");
-        oreName2PreferredMod.put("dustCopper", "ThermalExpansion");
-        oreName2PreferredMod.put("dustGold", "ThermalExpansion");
 
+        Configuration cfg = new Configuration(event.getSuggestedConfigurationFile());
+
+        FMLLog.log(Level.FINE, "OreDupeFix loading config");
+
+        try {
+            cfg.load();
+
+            if (cfg.categories.size() == 0) {
+                loadDefaults(cfg);
+            }
+
+            ConfigCategory category = cfg.getCategory("PreferredOres");
+
+            for (Map.Entry<String, Property> entry : category.entrySet()) {
+                String name = entry.getKey();
+                Property property = entry.getValue();
+
+                oreName2PreferredMod.put(name, property.value);
+            }
+        } catch (Exception e) {
+            FMLLog.log(Level.SEVERE, e, "OreDupeFix had a problem loading it's configuration");
+        } finally {
+            cfg.save();
+        }
+    }
+
+    public static void loadDefaults(Configuration cfg) {
+        ConfigCategory category = cfg.getCategory("PreferredOres");
+
+        FMLLog.log(Level.FINE, "OreDupeFix initializing defaults");
+
+        HashMap<String, String> m = new HashMap<String, String>();
+        // a reasonable set of defaults
+        m.put("ingotCopper", "ThermalExpansion");
+        m.put("ingotTin", "ThermalExpansion");
+        m.put("ingotBronze", "IC2");
+        m.put("dustBronze", "ThermalExpansion");
+        m.put("dustIron", "ThermalExpansion");
+        m.put("dustTin", "ThermalExpansion");
+        m.put("dustSilver", "ThermalExpansion");
+        m.put("dustCopper", "ThermalExpansion");
+        m.put("dustGold", "ThermalExpansion");
+
+        for (Map.Entry<String, String> entry : m.entrySet()) {
+            String oreName = entry.getKey();
+            String modID = entry.getValue();
+
+            category.put(oreName, new Property(oreName, modID, Property.Type.STRING));
+        }
+    }
+
+    public static void loadPreferredOres() {
         oreName2PreferredItem = new HashMap<String, ItemStack>();
 
         // Get registered ores and associated mods
