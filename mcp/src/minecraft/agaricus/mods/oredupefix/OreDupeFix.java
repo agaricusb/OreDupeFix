@@ -13,7 +13,9 @@ import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkMod;
 import cpw.mods.fml.common.registry.BlockProxy;
+import cpw.mods.fml.common.registry.GameData;
 import cpw.mods.fml.common.registry.GameRegistry;
+import cpw.mods.fml.common.registry.ItemData;
 import cpw.mods.fml.relauncher.ReflectionHelper;
 import ic2.api.Ic2Recipes;
 import ic2.core.AdvRecipe;
@@ -42,20 +44,15 @@ public class OreDupeFix {
         for (String oreName : oreNames) {
             System.out.println("ore: " + oreName);
             ArrayList<ItemStack> oreItems = OreDictionary.getOres(oreName);
+        }
 
-            Multimap<ModContainer, BlockProxy> blockRegistry = ReflectionHelper.getPrivateValue(GameRegistry.class, null, "blockRegistry");
+        Map<Integer, ItemData> idMap = ReflectionHelper.getPrivateValue(GameData.class, null, "idMap");
 
-            for (Map.Entry<ModContainer, BlockProxy> entry : blockRegistry.entries()) {
-                ModContainer modContainer = entry.getKey();
-                BlockProxy blockProxy = entry.getValue();
+        for (Map.Entry<Integer, ItemData> entry : idMap.entrySet()) {
+            int itemID = entry.getKey();
+            ItemData data = entry.getValue();
 
-                if (!(blockProxy instanceof Block)) {
-                    continue;
-                }
-                Block block = (Block)blockProxy;
-
-                System.out.println("mod "+modContainer.getModId() + ": " + block.getBlockName());
-            }
+            System.out.println("item "+itemID+" owned by "+data.getModId());
         }
 
         // Crafting recipes
