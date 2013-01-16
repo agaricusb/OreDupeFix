@@ -29,6 +29,7 @@ import net.minecraftforge.oredict.ShapelessOreRecipe;
 import thermalexpansion.api.crafting.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -39,19 +40,52 @@ public class OreDupeFix {
     public static void postInit(FMLPostInitializationEvent event) {
         System.out.println("loading OreDupeFix!");
 
+        HashMap<String, String> preferredOreMods = new HashMap<String, String>();
         // TODO: load preferred ores from config
+        preferredOreMods.put("ingotCopper", "ThermalExpansion");
+        preferredOreMods.put("ingotTin", "ThermalExpansion");
+        preferredOreMods.put("ingotBronze", "IC2");
+        preferredOreMods.put("dustBronze", "ThermalExpansion");
+        preferredOreMods.put("dustIron", "ThermalExpansion");
+        preferredOreMods.put("dustTin", "ThermalExpansion");
+        preferredOreMods.put("dustSilver", "ThermalExpansion");
+        preferredOreMods.put("dustCopper", "ThermalExpansion");
+        preferredOreMods.put("dustGold", "ThermalExpansion");
+
+        HashMap<String, ItemStack> preferredOreItems = new HashMap<String, ItemStack>();
 
         // Get registered ores and associated mods
         Map<Integer, ItemData> idMap = ReflectionHelper.getPrivateValue(GameData.class, null, "idMap");
 
-        String[] oreNames = OreDictionary.getOreNames();
-        for (String oreName : oreNames) {
-            System.out.println("ore: " + oreName);
+        //dumpOreDict();
+
+        // Map ore dict name to preferred item, given mod ID
+        for (Map.Entry<String, String> entry : preferredOreMods.entrySet()) {
+            String oreName = entry.getKey();
+            String preferredModID = entry.getValue();
+
             ArrayList<ItemStack> oreItems = OreDictionary.getOres(oreName);
+            boolean found = false;
             for (ItemStack oreItem : oreItems) {
                 ItemData itemData = idMap.get(oreItem.itemID);
+                String modID = itemData.getModId();
 
-                System.out.println("- " + oreItem.itemID + " = " + itemData.getModId());
+                if (preferredModID.equals(modID)) {
+                    preferredOreItems.put(oreName, oreItem);
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                System.out.println("No mod '"+preferredModID+"' found for ore '"+oreName+"'! Skipping");
+            }
+        }
+
+        for (String oreName : preferredOreMods.keySet()) {
+            String modID = preferredOreMods.get(oreName);
+            ItemStack itemStack = preferredOreItems.get(oreName);
+            if (itemStack != null) {
+                System.out.println("Preferring ore name "+oreName+" from mod "+modID+" = "+itemStack.itemID+":"+ itemStack.getItemDamage());
             }
         }
 
@@ -70,11 +104,10 @@ public class OreDupeFix {
                 continue;
             }
 
-            System.out.println("craft output: " + output.getDisplayName() + " = " + output.itemID + ":" + output.getItemDamage() + " class " + iRecipe.getClass());
+            //System.out.println("craft output: " + output.getDisplayName() + " = " + output.itemID + ":" + output.getItemDamage() + " class " + iRecipe.getClass());
 
             int itemID = output.itemID;
             int damage = output.getItemDamage();
-
 
             if (itemID == 5267 && damage == 5) {  // RP2 copper
                 // TODO: set output
@@ -122,6 +155,27 @@ public class OreDupeFix {
 
         // TODO: te
         // TODO: bc
+    }
+
+
+    /**
+     * Dump ore dictionary for debugging
+     */
+    public void dumpOreDict() {
+        Map<Integer, ItemData> idMap = ReflectionHelper.getPrivateValue(GameData.class, null, "idMap");
+
+        String[] oreNames = OreDictionary.getOreNames();
+        for (String oreName : oreNames) {
+            System.out.print("ore: " + oreName);
+            ArrayList<ItemStack> oreItems = OreDictionary.getOres(oreName);
+            for (ItemStack oreItem : oreItems) {
+                ItemData itemData = idMap.get(oreItem.itemID);
+                String modID = itemData.getModId();
+
+                System.out.println(oreItem.itemID + "=" + modID + ", ");
+            }
+            System.out.println("");
+        }
     }
 }
 
