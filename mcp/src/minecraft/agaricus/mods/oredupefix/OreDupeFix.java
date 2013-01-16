@@ -84,14 +84,26 @@ public class OreDupeFix {
         // TODO
 
         // IC2 machines
-        List<Map.Entry<ItemStack, ItemStack>> compressorRecipes = Ic2Recipes.getCompressorRecipes();
-        List<Map.Entry<ItemStack, ItemStack>> extractorRecipes = Ic2Recipes.getExtractorRecipes();
-        List<Map.Entry<ItemStack, Float>> scrapboxDrops = Ic2Recipes.getScrapboxDrops();
-        // TODO
+        replaceIC2MachineRecipes(Ic2Recipes.getCompressorRecipes());
+        replaceIC2MachineRecipes(Ic2Recipes.getExtractorRecipes());
+        replaceIC2MachineRecipes(Ic2Recipes.getMaceratorRecipes());
 
-        List<Map.Entry<ItemStack, ItemStack>> maceratorRecipes = Ic2Recipes.getMaceratorRecipes();
-        for (int i = 0; i < maceratorRecipes.size(); i += 1) {
-            Map.Entry<ItemStack, ItemStack> entry = maceratorRecipes.get(i);
+        // TODO
+        List<Map.Entry<ItemStack, Float>> scrapboxDrops = Ic2Recipes.getScrapboxDrops();
+
+        // TE machines
+        // TODO
+        ICrucibleRecipe[] iCrucibleRecipes = CraftingManagers.crucibleManager.getRecipeList();
+        IFurnaceRecipe[] iFurnaceRecipes = CraftingManagers.furnaceManager.getRecipeList();
+        IPulverizerRecipe[] iPulverizerRecipes = CraftingManagers.pulverizerManager.getRecipeList();
+        ISawmillRecipe[] iSawmillRecipes = CraftingManagers.sawmillManager.getRecipeList();
+        ISmelterRecipe[] iSmelterRecipes = CraftingManagers.smelterManager.getRecipeList();
+        //ISmelterRecipe[] iFillRecipes F= CraftingManagers.transposerManager.getFillRecipeList(); // TODO
+    }
+
+    public static void replaceIC2MachineRecipes(List<Map.Entry<ItemStack, ItemStack>> machineRecipes) {
+         for (int i = 0; i < machineRecipes.size(); i += 1) {
+            Map.Entry<ItemStack, ItemStack> entry = machineRecipes.get(i);
             ItemStack input = entry.getKey();
             ItemStack output = entry.getValue();
 
@@ -102,14 +114,6 @@ public class OreDupeFix {
 
             entry.setValue(newOutput);
         }
-
-        // TE machines
-        ICrucibleRecipe[] iCrucibleRecipes = CraftingManagers.crucibleManager.getRecipeList();
-        IFurnaceRecipe[] iFurnaceRecipes = CraftingManagers.furnaceManager.getRecipeList();
-        IPulverizerRecipe[] iPulverizerRecipes = CraftingManagers.pulverizerManager.getRecipeList();
-        ISawmillRecipe[] iSawmillRecipes = CraftingManagers.sawmillManager.getRecipeList();
-        ISmelterRecipe[] iSmelterRecipes = CraftingManagers.smelterManager.getRecipeList();
-        //ISmelterRecipe[] iFillRecipes F= CraftingManagers.transposerManager.getFillRecipeList(); // TODO
     }
 
     /**
