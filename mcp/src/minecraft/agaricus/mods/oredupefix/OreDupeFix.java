@@ -53,7 +53,63 @@ public class OreDupeFix {
 
         loadPreferredOres();
 
-        // Crafting recipes
+        replaceCraftingRecipes();
+        replaceFurnaceRecipes();
+        replaceFurnaceRecipesInsensitive();
+
+
+
+        // IC2 machines
+        replaceIC2MachineRecipes(Ic2Recipes.getCompressorRecipes());
+        replaceIC2MachineRecipes(Ic2Recipes.getExtractorRecipes());
+        replaceIC2MachineRecipes(Ic2Recipes.getMaceratorRecipes());
+
+        // TODO
+        List<Map.Entry<ItemStack, Float>> scrapboxDrops = Ic2Recipes.getScrapboxDrops();
+
+        // TE machines
+        // TODO
+        ICrucibleRecipe[] iCrucibleRecipes = CraftingManagers.crucibleManager.getRecipeList();
+        IFurnaceRecipe[] iFurnaceRecipes = CraftingManagers.furnaceManager.getRecipeList();
+        IPulverizerRecipe[] iPulverizerRecipes = CraftingManagers.pulverizerManager.getRecipeList();
+        ISawmillRecipe[] iSawmillRecipes = CraftingManagers.sawmillManager.getRecipeList();
+        ISmelterRecipe[] iSmelterRecipes = CraftingManagers.smelterManager.getRecipeList();
+        //ISmelterRecipe[] iFillRecipes F= CraftingManagers.transposerManager.getFillRecipeList(); // TODO
+    }
+
+    public static void replaceFurnaceRecipes() {
+         // Furnace recipes
+        Map<List<Integer>, ItemStack> metaSmeltingList = FurnaceRecipes.smelting().getMetaSmeltingList(); // metadata-sensitive; (itemID,metadata) to ItemStack
+        for (Map.Entry<List<Integer>, ItemStack> entry : metaSmeltingList.entrySet()) {
+            List<Integer> inputItemPlusData = entry.getKey();
+            ItemStack output = entry.getValue();
+
+            ItemStack newOutput = getPreferredOre(output);
+
+            if (newOutput != null) {
+                entry.setValue(newOutput);
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static void replaceFurnaceRecipesInsensitive() {
+        Map<Integer, ItemStack> smeltingList = (Map<Integer, ItemStack>)FurnaceRecipes.smelting().getSmeltingList(); // itemID to ItemStack
+
+        for (Map.Entry<Integer, ItemStack> entry : smeltingList.entrySet()) {
+            int itemID = entry.getKey();
+            ItemStack output = entry.getValue();
+
+            ItemStack newOutput = getPreferredOre(output);
+
+            if (newOutput != null) {
+                entry.setValue(newOutput);
+            }
+        }
+    }
+
+    public static void replaceCraftingRecipes() {
+         // Crafting recipes
         List recipeList = CraftingManager.getInstance().getRecipeList();
         for(Object recipe: recipeList) {
             if (!(recipe instanceof IRecipe)) {
@@ -78,27 +134,6 @@ public class OreDupeFix {
             setRecipeOutput(iRecipe, newOutput);
         }
 
-        // Furnace recipes
-        Map<List<Integer>, ItemStack> metaSmeltingList = FurnaceRecipes.smelting().getMetaSmeltingList(); // metadata-sensitive; (itemID,metadata) to ItemStack
-        Map smeltingList = FurnaceRecipes.smelting().getSmeltingList(); // itemID to ItemStack
-        // TODO
-
-        // IC2 machines
-        replaceIC2MachineRecipes(Ic2Recipes.getCompressorRecipes());
-        replaceIC2MachineRecipes(Ic2Recipes.getExtractorRecipes());
-        replaceIC2MachineRecipes(Ic2Recipes.getMaceratorRecipes());
-
-        // TODO
-        List<Map.Entry<ItemStack, Float>> scrapboxDrops = Ic2Recipes.getScrapboxDrops();
-
-        // TE machines
-        // TODO
-        ICrucibleRecipe[] iCrucibleRecipes = CraftingManagers.crucibleManager.getRecipeList();
-        IFurnaceRecipe[] iFurnaceRecipes = CraftingManagers.furnaceManager.getRecipeList();
-        IPulverizerRecipe[] iPulverizerRecipes = CraftingManagers.pulverizerManager.getRecipeList();
-        ISawmillRecipe[] iSawmillRecipes = CraftingManagers.sawmillManager.getRecipeList();
-        ISmelterRecipe[] iSmelterRecipes = CraftingManagers.smelterManager.getRecipeList();
-        //ISmelterRecipe[] iFillRecipes F= CraftingManagers.transposerManager.getFillRecipeList(); // TODO
     }
 
     public static void replaceIC2MachineRecipes(List<Map.Entry<ItemStack, ItemStack>> machineRecipes) {
@@ -108,11 +143,9 @@ public class OreDupeFix {
             ItemStack output = entry.getValue();
 
             ItemStack newOutput = getPreferredOre(output);
-            if (newOutput == null) {
-                continue;
+            if (newOutput != null) {
+                entry.setValue(newOutput);
             }
-
-            entry.setValue(newOutput);
         }
     }
 
