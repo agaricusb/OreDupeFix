@@ -257,7 +257,7 @@ public class OreDupeFix {
         // Get registered ores and associated mods
         Map<Integer, ItemData> idMap = ReflectionHelper.getPrivateValue(GameData.class, null, "idMap");
 
-        //dumpOreDict();
+        dumpOreDict();
 
         // Map ore dict name to preferred item, given mod ID
         for (Map.Entry<String, String> entry : oreName2PreferredMod.entrySet()) {
