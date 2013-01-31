@@ -60,6 +60,7 @@ public class OreDupeFix {
 
 
         // IC2 machines
+        // TODO: make optional
         replaceIC2MachineRecipes(Ic2Recipes.getCompressorRecipes());
         replaceIC2MachineRecipes(Ic2Recipes.getExtractorRecipes());
         replaceIC2MachineRecipes(Ic2Recipes.getMaceratorRecipes());
@@ -68,6 +69,7 @@ public class OreDupeFix {
         List<Map.Entry<ItemStack, Float>> scrapboxDrops = Ic2Recipes.getScrapboxDrops();
 
         // TE machines
+        /*
         // TODO
         ICrucibleRecipe[] iCrucibleRecipes = CraftingManagers.crucibleManager.getRecipeList();
         IFurnaceRecipe[] iFurnaceRecipes = CraftingManagers.furnaceManager.getRecipeList();
@@ -75,6 +77,7 @@ public class OreDupeFix {
         ISawmillRecipe[] iSawmillRecipes = CraftingManagers.sawmillManager.getRecipeList();
         ISmelterRecipe[] iSmelterRecipes = CraftingManagers.smelterManager.getRecipeList();
         //ISmelterRecipe[] iFillRecipes F= CraftingManagers.transposerManager.getFillRecipeList(); // TODO
+        */
     }
 
     public static void replaceFurnaceRecipes() {
