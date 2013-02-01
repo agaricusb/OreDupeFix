@@ -14,6 +14,7 @@ rm -rf reobf/minecraft/thermalexpansion
 echo
 echo Archiving
 pushd reobf/minecraft
+rm -f ../../../oredupefix-snapshot.zip
 zip -r ../../../oredupefix-snapshot.zip .
 popd
 popd
