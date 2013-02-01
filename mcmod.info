@@ -1,0 +1,21 @@
+[
+{
+  "modid": "OreDupeFix",
+  "name": "OreDupeFix",
+  "description": "Fixes ores and stuff",
+  "version": "1.2",
+  "mcversion": "1.4.7",
+  "url": "http://github.com/agaricusb/OreDupeFix",
+  "updateUrl": "",
+  "authors": [
+    "agaricus"
+  ],
+  "screenshots": [
+  ],
+  "parent":"",
+  "dependencies": [
+  "mod_MinecraftForge",
+  "IC2"
+  ]
+}
+]

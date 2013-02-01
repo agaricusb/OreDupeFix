@@ -1,0 +1,11 @@
+2013/01/31  1.2
+    * Add 'dumpOreDict' option in config
+    * Change default tin/copper ingots to RP2
+    * Remove unused Thermal Expansion dependency
+
+2013/01/20  1.1
+    * Dump ore dictionary on load
+
+2013/01/06  1.0
+    * Supports recipes for crafting, furnace, IC2 macerator, compressor, extractor
+    * Initial unpublicized release
