@@ -47,9 +47,16 @@ public class OreDupeFix {
      */
     public static HashMap<ItemStack, ItemStack> oreItem2PreferredItem;
 
+
+    private static boolean shouldDumpOreDict;
+
     @PostInit
     public static void postInit(FMLPostInitializationEvent event) {
-        System.out.println("loading OreDupeFix!");
+        System.out.println("Loading OreDupeFix...");
+
+        if (shouldDumpOreDict) {
+            dumpOreDict();
+        }
 
         loadPreferredOres();
 
@@ -67,6 +74,8 @@ public class OreDupeFix {
 
         // TODO
         List<Map.Entry<ItemStack, Float>> scrapboxDrops = Ic2Recipes.getScrapboxDrops();
+
+        // TODO: dungeon loot
 
         // TE machines
         /*
@@ -210,6 +219,8 @@ public class OreDupeFix {
         try {
             cfg.load();
 
+            shouldDumpOreDict = cfg.get(Configuration.CATEGORY_GENERAL, "dumpOreDict", true).getBoolean(true);
+
             if (cfg.categories.size() == 0) {
                 loadDefaults(cfg);
             }
@@ -222,6 +233,7 @@ public class OreDupeFix {
 
                 oreName2PreferredMod.put(name, property.value);
             }
+
         } catch (Exception e) {
             FMLLog.log(Level.SEVERE, e, "OreDupeFix had a problem loading it's configuration");
         } finally {
@@ -260,8 +272,6 @@ public class OreDupeFix {
         // Get registered ores and associated mods
         Map<Integer, ItemData> idMap = ReflectionHelper.getPrivateValue(GameData.class, null, "idMap");
 
-        dumpOreDict();
-
         // Map ore dict name to preferred item, given mod ID
         for (Map.Entry<String, String> entry : oreName2PreferredMod.entrySet()) {
             String oreName = entry.getKey();
@@ -296,20 +306,20 @@ public class OreDupeFix {
 
 
     /**
-     * Dump ore dictionary for debugging
+     * Dump ore dictionary
      */
     public static void dumpOreDict() {
         Map<Integer, ItemData> idMap = ReflectionHelper.getPrivateValue(GameData.class, null, "idMap");
 
         String[] oreNames = OreDictionary.getOreNames();
         for (String oreName : oreNames) {
-            System.out.print("ore: " + oreName);
+            System.out.print("ore: " + oreName + ": ");
             ArrayList<ItemStack> oreItems = OreDictionary.getOres(oreName);
             for (ItemStack oreItem : oreItems) {
                 ItemData itemData = idMap.get(oreItem.itemID);
                 String modID = itemData.getModId();
 
-                System.out.println(oreItem.itemID + "=" + modID + ", ");
+                System.out.print(oreItem.itemID + "=" + modID + ", ");
             }
             System.out.println("");
         }
