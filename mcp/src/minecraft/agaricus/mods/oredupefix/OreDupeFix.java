@@ -319,7 +319,7 @@ public class OreDupeFix {
                 ItemData itemData = idMap.get(oreItem.itemID);
                 String modID = itemData.getModId();
 
-                System.out.print(oreItem.itemID + "=" + modID + ", ");
+                System.out.print(oreItem.itemID + ":" + oreItem.getItemDamage() + "=" + modID + ", ");
             }
             System.out.println("");
         }
