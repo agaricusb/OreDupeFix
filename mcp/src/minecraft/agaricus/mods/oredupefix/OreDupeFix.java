@@ -236,8 +236,8 @@ public class OreDupeFix {
 
         HashMap<String, String> m = new HashMap<String, String>();
         // a reasonable set of defaults
-        m.put("ingotCopper", "ThermalExpansion");
-        m.put("ingotTin", "ThermalExpansion");
+        m.put("ingotCopper", "RedPowerBase");
+        m.put("ingotTin", "RedPowerBase");
         m.put("ingotBronze", "IC2");
         m.put("dustBronze", "ThermalExpansion");
         m.put("dustIron", "ThermalExpansion");
