@@ -23,10 +23,7 @@ import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 import thermalexpansion.api.crafting.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 
 @Mod(modid = "OreDupeFix", name = "OreDupeFix", version = "1.0")
@@ -219,8 +216,6 @@ public class OreDupeFix {
         try {
             cfg.load();
 
-            shouldDumpOreDict = cfg.get(Configuration.CATEGORY_GENERAL, "dumpOreDict", true).getBoolean(true);
-
             if (cfg.categories.size() == 0) {
                 loadDefaults(cfg);
             }
@@ -234,6 +229,7 @@ public class OreDupeFix {
                 oreName2PreferredMod.put(name, property.value);
             }
 
+            shouldDumpOreDict = cfg.get(Configuration.CATEGORY_GENERAL, "dumpOreDict", true).getBoolean(true);
         } catch (Exception e) {
             FMLLog.log(Level.SEVERE, e, "OreDupeFix had a problem loading it's configuration");
         } finally {
@@ -311,7 +307,9 @@ public class OreDupeFix {
     public static void dumpOreDict() {
         Map<Integer, ItemData> idMap = ReflectionHelper.getPrivateValue(GameData.class, null, "idMap");
 
-        String[] oreNames = OreDictionary.getOreNames();
+        List<String> oreNames = Arrays.asList(OreDictionary.getOreNames());
+        Collections.sort(oreNames);
+
         for (String oreName : oreNames) {
             System.out.print("ore: " + oreName + ": ");
             ArrayList<ItemStack> oreItems = OreDictionary.getOres(oreName);
