@@ -1,4 +1,8 @@
+2013/02/    1.4
+    * Fix replaced stack size (e.g. crafting copper block -> 9 ingots)
+
 2013/01/31  1.3
+    * Initial public release to IC2 forums
     * Remove unnecessary API files in jar
 
 2013/01/31  1.2

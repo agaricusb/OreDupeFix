@@ -173,12 +173,15 @@ public class OreDupeFix {
         }
 
         String oreName = OreDictionary.getOreName(oreID);
+        ItemStack newOutputType = oreName2PreferredItem.get(oreName);
 
-        ItemStack newOutput = oreName2PreferredItem.get(oreName);
-        if (newOutput == null) {
+        if (newOutputType == null) {
             // no preference, do not replace
             return null;
         }
+
+        // replace with new stack of same size but new type
+        ItemStack newOutput = new ItemStack(newOutputType.itemID, output.stackSize, newOutputType.getItemDamage());
 
         return newOutput;
     }
