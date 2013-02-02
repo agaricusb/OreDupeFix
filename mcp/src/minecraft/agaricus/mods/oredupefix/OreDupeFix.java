@@ -43,6 +43,8 @@ public class OreDupeFix {
 
     private static boolean shouldDumpOreDict;
 
+    private static boolean verbose;
+
     @PreInit
     public static void preInit(FMLPreInitializationEvent event) {
         oreName2PreferredMod = new HashMap<String, String>();
@@ -68,6 +70,7 @@ public class OreDupeFix {
             }
 
             shouldDumpOreDict = cfg.get(Configuration.CATEGORY_GENERAL, "dumpOreDict", true).getBoolean(true);
+            verbose = cfg.get(Configuration.CATEGORY_GENERAL, "verbose", true).getBoolean(true);
         } catch (Exception e) {
             FMLLog.log(Level.SEVERE, e, "OreDupeFix had a problem loading it's configuration");
         } finally {
@@ -77,7 +80,7 @@ public class OreDupeFix {
 
     @PostInit
     public static void postInit(FMLPostInitializationEvent event) {
-        System.out.println("Loading OreDupeFix...");
+        log("Loading OreDupeFix...");
 
         if (shouldDumpOreDict) {
             dumpOreDict();
@@ -109,6 +112,12 @@ public class OreDupeFix {
         ISmelterRecipe[] iSmelterRecipes = CraftingManagers.smelterManager.getRecipeList();
         //ISmelterRecipe[] iFillRecipes F= CraftingManagers.transposerManager.getFillRecipeList(); // TODO
         */
+    }
+
+    public static void log(String message) {
+        if (verbose) {
+            System.out.println(message);
+        }
     }
 
     public static void loadDefaults(Configuration cfg) {
@@ -161,7 +170,7 @@ public class OreDupeFix {
                 }
             }
             if (!found) {
-                System.out.println("No mod '"+preferredModID+"' found for ore '"+oreName+"'! Skipping");
+                log("No mod '"+preferredModID+"' found for ore '"+oreName+"'! Skipping");
             }
         }
 
@@ -205,8 +214,6 @@ public class OreDupeFix {
      * @return A new ore dictionary item, for the name ore but preferred by the user
      */
     public static ItemStack getPreferredOre(ItemStack output) {
-        //System.out.println("craft output: " + output.getDisplayName() + " = " + output.itemID + ":" + output.getItemDamage() + " class " + iRecipe.getClass());
-
         int oreID = OreDictionary.getOreID(output);
         if (oreID == -1) {
             // this isn't an ore
@@ -249,7 +256,7 @@ public class OreDupeFix {
                 continue;
             }
 
-            System.out.println("Modifying recipe "+iRecipe+" replacing "+output.itemID+":"+output.getItemDamage()+" -> "+newOutput.itemID+":"+newOutput.getItemDamage());
+            log("Modifying recipe "+iRecipe+" replacing "+output.itemID+":"+output.getItemDamage()+" -> "+newOutput.itemID+":"+newOutput.getItemDamage());
             setCraftingRecipeOutput(iRecipe, newOutput);
         }
 
@@ -319,7 +326,7 @@ public class OreDupeFix {
                         continue;
                     }
 
-                    System.out.println("Modifying dungeon loot in "+entry.getKey()+", replacing "+output.itemID+":"+output.getItemDamage()+" -> "+newOutput.itemID+":"+newOutput.getItemDamage());
+                    log("Modifying dungeon loot in "+entry.getKey()+", replacing "+output.itemID+":"+output.getItemDamage()+" -> "+newOutput.itemID+":"+newOutput.getItemDamage());
                     weightedRandomChestContent.theItemId = newOutput;
                 }
             }
@@ -362,7 +369,7 @@ public class OreDupeFix {
                     continue;
                 }
 
-                System.out.println("Modifying IC2 scrapbox drop, replacing "+output.itemID+":"+output.getItemDamage()+" -> "+newOutput.itemID+":"+newOutput.getItemDamage());
+                log("Modifying IC2 scrapbox drop, replacing "+output.itemID+":"+output.getItemDamage()+" -> "+newOutput.itemID+":"+newOutput.getItemDamage());
                 ReflectionHelper.setPrivateValue(dropClass, drop, newOutput, 0);
             }
         } catch (Throwable t) {
