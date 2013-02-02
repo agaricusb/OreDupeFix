@@ -250,6 +250,7 @@ public class OreDupeFix {
         m.put("ingotCopper", "RedPowerBase");
         m.put("ingotTin", "RedPowerBase");
         m.put("ingotBronze", "IC2");
+        m.put("ingotSilver", "RedPowerBase");
         m.put("dustBronze", "ThermalExpansion");
         m.put("dustIron", "ThermalExpansion");
         m.put("dustTin", "ThermalExpansion");
