@@ -22,7 +22,6 @@ import net.minecraftforge.common.Property;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
-import thermalexpansion.api.crafting.*;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -40,199 +39,7 @@ public class OreDupeFix {
      */
     public static HashMap<String, ItemStack> oreName2PreferredItem;
 
-    /**
-     * Map from each ore ItemStack to
-     */
-    public static HashMap<ItemStack, ItemStack> oreItem2PreferredItem;
-
-
     private static boolean shouldDumpOreDict;
-
-    @PostInit
-    public static void postInit(FMLPostInitializationEvent event) {
-        System.out.println("Loading OreDupeFix...");
-
-        if (shouldDumpOreDict) {
-            dumpOreDict();
-        }
-
-        loadPreferredOres();
-
-        replaceCraftingRecipes();
-        replaceFurnaceRecipes();
-        replaceFurnaceRecipesInsensitive();
-
-
-
-        // IC2 machines
-        // TODO: make optional
-        replaceIC2MachineRecipes(Ic2Recipes.getCompressorRecipes());
-        replaceIC2MachineRecipes(Ic2Recipes.getExtractorRecipes());
-        replaceIC2MachineRecipes(Ic2Recipes.getMaceratorRecipes());
-        replaceIC2ScrapboxDrops();
-
-        // TODO: dungeon loot
-
-        // TE machines
-        /*
-        // TODO
-        ICrucibleRecipe[] iCrucibleRecipes = CraftingManagers.crucibleManager.getRecipeList();
-        IFurnaceRecipe[] iFurnaceRecipes = CraftingManagers.furnaceManager.getRecipeList();
-        IPulverizerRecipe[] iPulverizerRecipes = CraftingManagers.pulverizerManager.getRecipeList();
-        ISawmillRecipe[] iSawmillRecipes = CraftingManagers.sawmillManager.getRecipeList();
-        ISmelterRecipe[] iSmelterRecipes = CraftingManagers.smelterManager.getRecipeList();
-        //ISmelterRecipe[] iFillRecipes F= CraftingManagers.transposerManager.getFillRecipeList(); // TODO
-        */
-    }
-
-    public static void replaceFurnaceRecipes() {
-         // Furnace recipes
-        Map<List<Integer>, ItemStack> metaSmeltingList = FurnaceRecipes.smelting().getMetaSmeltingList(); // metadata-sensitive; (itemID,metadata) to ItemStack
-        for (Map.Entry<List<Integer>, ItemStack> entry : metaSmeltingList.entrySet()) {
-            List<Integer> inputItemPlusData = entry.getKey();
-            ItemStack output = entry.getValue();
-
-            ItemStack newOutput = getPreferredOre(output);
-
-            if (newOutput != null) {
-                entry.setValue(newOutput);
-            }
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    public static void replaceFurnaceRecipesInsensitive() {
-        Map<Integer, ItemStack> smeltingList = (Map<Integer, ItemStack>)FurnaceRecipes.smelting().getSmeltingList(); // itemID to ItemStack
-
-        for (Map.Entry<Integer, ItemStack> entry : smeltingList.entrySet()) {
-            int itemID = entry.getKey();
-            ItemStack output = entry.getValue();
-
-            ItemStack newOutput = getPreferredOre(output);
-
-            if (newOutput != null) {
-                entry.setValue(newOutput);
-            }
-        }
-    }
-
-    public static void replaceCraftingRecipes() {
-         // Crafting recipes
-        List recipeList = CraftingManager.getInstance().getRecipeList();
-        for(Object recipe: recipeList) {
-            if (!(recipe instanceof IRecipe)) {
-                continue;
-            }
-
-            IRecipe iRecipe = (IRecipe)recipe;
-            ItemStack output = iRecipe.getRecipeOutput();
-
-            if (output == null) {
-                // some recipes require computing the output with getCraftingResult()
-                continue;
-            }
-
-            ItemStack newOutput = getPreferredOre(output);
-            if (newOutput == null) {
-                // do not replace
-                continue;
-            }
-
-            System.out.println("Modifying recipe "+iRecipe+" replacing "+output.itemID+":"+output.getItemDamage()+" -> "+newOutput.itemID+":"+newOutput.getItemDamage());
-            setRecipeOutput(iRecipe, newOutput);
-        }
-
-    }
-
-    public static void replaceIC2MachineRecipes(List<Map.Entry<ItemStack, ItemStack>> machineRecipes) {
-         for (int i = 0; i < machineRecipes.size(); i += 1) {
-            Map.Entry<ItemStack, ItemStack> entry = machineRecipes.get(i);
-            ItemStack input = entry.getKey();
-            ItemStack output = entry.getValue();
-
-            ItemStack newOutput = getPreferredOre(output);
-            if (newOutput != null) {
-                entry.setValue(newOutput);
-            }
-        }
-    }
-
-    public static void replaceIC2ScrapboxDrops() {
-        // Replace scrapbox drops in the item itself -- cannot use the API
-        // Ic2Recipes.getScrapboxDrops() call since it returns a copy :(
-
-        try {
-            List dropList = ItemScrapbox.dropList;
-
-            // 'Drop' inner class
-            Class dropClass = ItemScrapbox.class.getDeclaredClasses()[0];
-
-            for (int i = 0; i < dropList.size(); i++) {
-                Object drop = dropList.get(i);
-
-                ItemStack output = ReflectionHelper.getPrivateValue((Class<? super Object>)dropClass, drop, 0);
-
-                ItemStack newOutput = getPreferredOre(output);
-                if (newOutput == null) {
-                    continue;
-                }
-
-                ReflectionHelper.setPrivateValue(dropClass, drop, newOutput, 0);
-            }
-        } catch (Throwable t) {
-            System.out.println("Failed to replace IC2 scrapbox drops: "+t);
-        }
-    }
-
-    /**
-     *
-     * @param output The existing ore dictionary item
-     * @return A new ore dictionary item, for the name ore but preferred by the user
-     */
-    public static ItemStack getPreferredOre(ItemStack output) {
-        //System.out.println("craft output: " + output.getDisplayName() + " = " + output.itemID + ":" + output.getItemDamage() + " class " + iRecipe.getClass());
-
-        int oreID = OreDictionary.getOreID(output);
-        if (oreID == -1) {
-            // this isn't an ore
-            return null;
-        }
-
-        String oreName = OreDictionary.getOreName(oreID);
-        ItemStack newOutputType = oreName2PreferredItem.get(oreName);
-
-        if (newOutputType == null) {
-            // no preference, do not replace
-            return null;
-        }
-
-        // replace with new stack of same size but new type
-        ItemStack newOutput = new ItemStack(newOutputType.itemID, output.stackSize, newOutputType.getItemDamage());
-
-        return newOutput;
-    }
-
-    public static void setRecipeOutput(IRecipe iRecipe, ItemStack output) {
-        if (iRecipe instanceof ShapedRecipes) {
-            ReflectionHelper.setPrivateValue(ShapedRecipes.class,(ShapedRecipes)iRecipe, output, "e"/*"recipeOutput"*/); // TODO: avoid hardcoding obf
-        } else if (iRecipe instanceof ShapelessRecipes) {
-            ReflectionHelper.setPrivateValue(ShapelessRecipes.class,(ShapelessRecipes)iRecipe, output, "a"/*"recipeOutput"*/);
-        } else if (iRecipe instanceof ShapelessOreRecipe) {
-            ReflectionHelper.setPrivateValue(ShapelessOreRecipe.class,(ShapelessOreRecipe)iRecipe, output, "output");
-        } else if (iRecipe instanceof ShapedOreRecipe) {
-            ReflectionHelper.setPrivateValue(ShapedOreRecipe.class,(ShapedOreRecipe)iRecipe, output, "output");
-
-        // IndustrialCraft^2
-        } else if (iRecipe instanceof AdvRecipe) {
-            // thanks IC2 for making this field public.. even if recipes aren't in the API
-            ((AdvRecipe)iRecipe).output = output;
-        } else if (iRecipe instanceof AdvShapelessRecipe) {
-            ((AdvShapelessRecipe)iRecipe).output = output;
-        }
-
-        // TODO: te
-        // TODO: bc
-    }
 
     @PreInit
     public static void preInit(FMLPreInitializationEvent event) {
@@ -264,6 +71,41 @@ public class OreDupeFix {
         } finally {
             cfg.save();
         }
+    }
+
+    @PostInit
+    public static void postInit(FMLPostInitializationEvent event) {
+        System.out.println("Loading OreDupeFix...");
+
+        if (shouldDumpOreDict) {
+            dumpOreDict();
+        }
+
+        loadPreferredOres();
+
+        replaceCraftingRecipes();
+        replaceFurnaceRecipes();
+        replaceFurnaceRecipesInsensitive();
+
+        // IC2 machines
+        // TODO: make optional
+        replaceIC2MachineRecipes(Ic2Recipes.getCompressorRecipes());
+        replaceIC2MachineRecipes(Ic2Recipes.getExtractorRecipes());
+        replaceIC2MachineRecipes(Ic2Recipes.getMaceratorRecipes());
+        replaceIC2ScrapboxDrops();
+
+        // TODO: dungeon loot
+
+        // TE machines
+        /*
+        // TODO - check TE API for 'replaceable recipes' setting
+        ICrucibleRecipe[] iCrucibleRecipes = CraftingManagers.crucibleManager.getRecipeList();
+        IFurnaceRecipe[] iFurnaceRecipes = CraftingManagers.furnaceManager.getRecipeList();
+        IPulverizerRecipe[] iPulverizerRecipes = CraftingManagers.pulverizerManager.getRecipeList();
+        ISawmillRecipe[] iSawmillRecipes = CraftingManagers.sawmillManager.getRecipeList();
+        ISmelterRecipe[] iSmelterRecipes = CraftingManagers.smelterManager.getRecipeList();
+        //ISmelterRecipe[] iFillRecipes F= CraftingManagers.transposerManager.getFillRecipeList(); // TODO
+        */
     }
 
     public static void loadDefaults(Configuration cfg) {
@@ -350,6 +192,153 @@ public class OreDupeFix {
                 System.out.print(oreItem.itemID + ":" + oreItem.getItemDamage() + "=" + modID + ", ");
             }
             System.out.println("");
+        }
+    }
+
+
+    /**
+     * Get an equivalent but preferred item
+     * @param output The existing ore dictionary item
+     * @return A new ore dictionary item, for the name ore but preferred by the user
+     */
+    public static ItemStack getPreferredOre(ItemStack output) {
+        //System.out.println("craft output: " + output.getDisplayName() + " = " + output.itemID + ":" + output.getItemDamage() + " class " + iRecipe.getClass());
+
+        int oreID = OreDictionary.getOreID(output);
+        if (oreID == -1) {
+            // this isn't an ore
+            return null;
+        }
+
+        String oreName = OreDictionary.getOreName(oreID);
+        ItemStack newOutputType = oreName2PreferredItem.get(oreName);
+
+        if (newOutputType == null) {
+            // no preference, do not replace
+            return null;
+        }
+
+        // replace with new stack of same size but new type
+        ItemStack newOutput = new ItemStack(newOutputType.itemID, output.stackSize, newOutputType.getItemDamage());
+
+        return newOutput;
+    }
+
+    public static void replaceCraftingRecipes() {
+        // Crafting recipes
+        List recipeList = CraftingManager.getInstance().getRecipeList();
+        for(Object recipe: recipeList) {
+            if (!(recipe instanceof IRecipe)) {
+                continue;
+            }
+
+            IRecipe iRecipe = (IRecipe)recipe;
+            ItemStack output = iRecipe.getRecipeOutput();
+
+            if (output == null) {
+                // some recipes require computing the output with getCraftingResult()
+                continue;
+            }
+
+            ItemStack newOutput = getPreferredOre(output);
+            if (newOutput == null) {
+                // do not replace
+                continue;
+            }
+
+            System.out.println("Modifying recipe "+iRecipe+" replacing "+output.itemID+":"+output.getItemDamage()+" -> "+newOutput.itemID+":"+newOutput.getItemDamage());
+            setCraftingRecipeOutput(iRecipe, newOutput);
+        }
+
+    }
+
+    public static void setCraftingRecipeOutput(IRecipe iRecipe, ItemStack output) {
+        if (iRecipe instanceof ShapedRecipes) {
+            ReflectionHelper.setPrivateValue(ShapedRecipes.class,(ShapedRecipes)iRecipe, output, "e"/*"recipeOutput"*/); // TODO: avoid hardcoding obf
+        } else if (iRecipe instanceof ShapelessRecipes) {
+            ReflectionHelper.setPrivateValue(ShapelessRecipes.class,(ShapelessRecipes)iRecipe, output, "a"/*"recipeOutput"*/);
+        } else if (iRecipe instanceof ShapelessOreRecipe) {
+            ReflectionHelper.setPrivateValue(ShapelessOreRecipe.class,(ShapelessOreRecipe)iRecipe, output, "output");
+        } else if (iRecipe instanceof ShapedOreRecipe) {
+            ReflectionHelper.setPrivateValue(ShapedOreRecipe.class,(ShapedOreRecipe)iRecipe, output, "output");
+
+            // IndustrialCraft^2
+        } else if (iRecipe instanceof AdvRecipe) {
+            // thanks IC2 for making this field public.. even if recipes aren't in the API
+            ((AdvRecipe)iRecipe).output = output;
+        } else if (iRecipe instanceof AdvShapelessRecipe) {
+            ((AdvShapelessRecipe)iRecipe).output = output;
+        }
+    }
+
+    public static void replaceFurnaceRecipes() {
+         // Furnace recipes
+        Map<List<Integer>, ItemStack> metaSmeltingList = FurnaceRecipes.smelting().getMetaSmeltingList(); // metadata-sensitive; (itemID,metadata) to ItemStack
+        for (Map.Entry<List<Integer>, ItemStack> entry : metaSmeltingList.entrySet()) {
+            List<Integer> inputItemPlusData = entry.getKey();
+            ItemStack output = entry.getValue();
+
+            ItemStack newOutput = getPreferredOre(output);
+
+            if (newOutput != null) {
+                entry.setValue(newOutput);
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static void replaceFurnaceRecipesInsensitive() {
+        Map<Integer, ItemStack> smeltingList = (Map<Integer, ItemStack>)FurnaceRecipes.smelting().getSmeltingList(); // itemID to ItemStack
+
+        for (Map.Entry<Integer, ItemStack> entry : smeltingList.entrySet()) {
+            int itemID = entry.getKey();
+            ItemStack output = entry.getValue();
+
+            ItemStack newOutput = getPreferredOre(output);
+
+            if (newOutput != null) {
+                entry.setValue(newOutput);
+            }
+        }
+    }
+
+    public static void replaceIC2MachineRecipes(List<Map.Entry<ItemStack, ItemStack>> machineRecipes) {
+         for (int i = 0; i < machineRecipes.size(); i += 1) {
+            Map.Entry<ItemStack, ItemStack> entry = machineRecipes.get(i);
+            ItemStack input = entry.getKey();
+            ItemStack output = entry.getValue();
+
+            ItemStack newOutput = getPreferredOre(output);
+            if (newOutput != null) {
+                entry.setValue(newOutput);
+            }
+        }
+    }
+
+    public static void replaceIC2ScrapboxDrops() {
+        // Replace scrapbox drops in the item itself -- cannot use the API
+        // Ic2Recipes.getScrapboxDrops() call since it returns a copy :(
+
+        try {
+            List dropList = ItemScrapbox.dropList;
+
+            // 'Drop' inner class
+            Class dropClass = ItemScrapbox.class.getDeclaredClasses()[0];
+
+            for (int i = 0; i < dropList.size(); i++) {
+                Object drop = dropList.get(i);
+
+                ItemStack output = ReflectionHelper.getPrivateValue((Class<? super Object>)dropClass, drop, 0);
+
+                ItemStack newOutput = getPreferredOre(output);
+                if (newOutput == null) {
+                    continue;
+                }
+
+                ReflectionHelper.setPrivateValue(dropClass, drop, newOutput, 0);
+            }
+        } catch (Throwable t) {
+            System.out.println("Failed to replace IC2 scrapbox drops: "+t);
         }
     }
 }
