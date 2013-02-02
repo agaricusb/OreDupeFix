@@ -68,9 +68,7 @@ public class OreDupeFix {
         replaceIC2MachineRecipes(Ic2Recipes.getCompressorRecipes());
         replaceIC2MachineRecipes(Ic2Recipes.getExtractorRecipes());
         replaceIC2MachineRecipes(Ic2Recipes.getMaceratorRecipes());
-
-        // TODO
-        List<Map.Entry<ItemStack, Float>> scrapboxDrops = Ic2Recipes.getScrapboxDrops();
+        //replaceIC2ScrapboxDrops(); // TODO
 
         // TODO: dungeon loot
 
@@ -157,6 +155,26 @@ public class OreDupeFix {
             }
         }
     }
+
+    /* TODO: fix
+    public static void replaceIC2ScrapboxDrops() {
+        // can't use this, ic2.core.item.ItemScrapbox getDropList() returns a copy :(
+        List<Map.Entry<ItemStack, Float>> scrapboxDrops = Ic2Recipes.getScrapboxDrops();
+
+        for (int i = 0; i < scrapboxDrops.size(); i++) {
+            Map.Entry<ItemStack, Float> scrapboxDrop = scrapboxDrops.get(i);
+
+            ItemStack output = scrapboxDrop.getKey();
+            ItemStack newOutput = getPreferredOre(output);
+            if (newOutput == null) {
+                continue;
+            }
+
+            Map.Entry<ItemStack, Float> newScrapboxDrop = new AbstractMap.SimpleEntry<ItemStack, Float>(newOutput, scrapboxDrop.getValue());
+            System.out.println("old drop="+scrapboxDrop+" new="+newScrapboxDrop);
+            scrapboxDrops.set(i, newScrapboxDrop);
+        }
+    }*/
 
     /**
      *
