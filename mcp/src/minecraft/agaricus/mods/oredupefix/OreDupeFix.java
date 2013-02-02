@@ -16,6 +16,8 @@ import ic2.core.AdvShapelessRecipe;
 import ic2.core.item.ItemScrapbox;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.*;
+import net.minecraft.util.WeightedRandomChestContent;
+import net.minecraftforge.common.ChestGenHooks;
 import net.minecraftforge.common.ConfigCategory;
 import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.Property;
@@ -86,6 +88,7 @@ public class OreDupeFix {
         replaceCraftingRecipes();
         replaceFurnaceRecipes();
         replaceFurnaceRecipesInsensitive();
+        replaceDungeonLoot();
 
         // IC2 machines
         // TODO: make optional
@@ -302,6 +305,30 @@ public class OreDupeFix {
         }
     }
 
+    public static void replaceDungeonLoot() {
+        try {
+            HashMap<String, ChestGenHooks> chestInfo = ReflectionHelper.getPrivateValue(ChestGenHooks.class, null, "chestInfo");
+            for (Map.Entry<String, ChestGenHooks> entry : chestInfo.entrySet()) {
+                ChestGenHooks chestGenHooks = entry.getValue();
+
+                ArrayList<WeightedRandomChestContent> contents = ReflectionHelper.getPrivateValue(ChestGenHooks.class, chestGenHooks, "contents");
+                for (WeightedRandomChestContent weightedRandomChestContent : contents) {
+                    ItemStack output = weightedRandomChestContent.theItemId;
+                    ItemStack newOutput = getPreferredOre(output);
+                    if (newOutput == null) {
+                        continue;
+                    }
+
+                    System.out.println("Modifying dungeon loot in "+entry.getKey()+", replacing "+output.itemID+":"+output.getItemDamage()+" -> "+newOutput.itemID+":"+newOutput.getItemDamage());
+                    weightedRandomChestContent.theItemId = newOutput;
+                }
+            }
+        } catch (Throwable t) {
+            System.out.println("Failed to replace dungeon loot: " + t);
+        }
+    }
+
+
     public static void replaceIC2MachineRecipes(List<Map.Entry<ItemStack, ItemStack>> machineRecipes) {
          for (int i = 0; i < machineRecipes.size(); i += 1) {
             Map.Entry<ItemStack, ItemStack> entry = machineRecipes.get(i);
@@ -335,6 +362,7 @@ public class OreDupeFix {
                     continue;
                 }
 
+                System.out.println("Modifying IC2 scrapbox drop, replacing "+output.itemID+":"+output.getItemDamage()+" -> "+newOutput.itemID+":"+newOutput.getItemDamage());
                 ReflectionHelper.setPrivateValue(dropClass, drop, newOutput, 0);
             }
         } catch (Throwable t) {
