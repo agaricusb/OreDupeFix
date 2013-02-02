@@ -28,7 +28,7 @@ import net.minecraftforge.oredict.ShapelessOreRecipe;
 import java.util.*;
 import java.util.logging.Level;
 
-@Mod(modid = "OreDupeFix", name = "OreDupeFix", version = "1.0")
+@Mod(modid = "OreDupeFix", name = "OreDupeFix", version = "1.4")
 @NetworkMod(clientSideRequired = false, serverSideRequired = false)
 public class OreDupeFix {
     /**

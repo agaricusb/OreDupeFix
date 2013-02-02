@@ -1,8 +1,9 @@
-2013/02/    1.4
+2013/02/01  1.4
     * Fix replaced stack size (e.g. crafting copper block -> 9 ingots)
     * Add default silver ingot preference set to RP2
     * Add IC2 scrapbox replacements
     * Add dungeon loot replacements
+    * Add verbose config option
 
 2013/01/31  1.3
     * Initial public release to IC2 forums
