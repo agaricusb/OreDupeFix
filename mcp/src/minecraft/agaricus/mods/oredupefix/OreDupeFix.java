@@ -13,6 +13,7 @@ import cpw.mods.fml.relauncher.ReflectionHelper;
 import ic2.api.Ic2Recipes;
 import ic2.core.AdvRecipe;
 import ic2.core.AdvShapelessRecipe;
+import ic2.core.item.ItemScrapbox;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.*;
 import net.minecraftforge.common.ConfigCategory;
@@ -68,7 +69,7 @@ public class OreDupeFix {
         replaceIC2MachineRecipes(Ic2Recipes.getCompressorRecipes());
         replaceIC2MachineRecipes(Ic2Recipes.getExtractorRecipes());
         replaceIC2MachineRecipes(Ic2Recipes.getMaceratorRecipes());
-        //replaceIC2ScrapboxDrops(); // TODO
+        replaceIC2ScrapboxDrops();
 
         // TODO: dungeon loot
 
@@ -156,9 +157,24 @@ public class OreDupeFix {
         }
     }
 
-    /* TODO: fix
     public static void replaceIC2ScrapboxDrops() {
-        // can't use this, ic2.core.item.ItemScrapbox getDropList() returns a copy :(
+        List<ItemScrapbox.Drop> dropList = ItemScrapbox.dropList;
+
+        System.out.println("droplist="+dropList);
+
+        for (ItemScrapbox.Drop drop : dropList) {
+            ItemStack output = ReflectionHelper.getPrivateValue(ItemScrapbox.Drop.class, drop, 0);
+
+            ItemStack newOutput = getPreferredOre(output);
+            if (newOutput == null) {
+                continue;
+            }
+
+            ReflectionHelper.setPrivateValue(ItemScrapbox.Drop.class, drop, newOutput, 0);
+        }
+
+
+        /* can't use this, ic2.core.item.ItemScrapbox getDropList() returns a copy :(
         List<Map.Entry<ItemStack, Float>> scrapboxDrops = Ic2Recipes.getScrapboxDrops();
 
         for (int i = 0; i < scrapboxDrops.size(); i++) {
@@ -173,8 +189,8 @@ public class OreDupeFix {
             Map.Entry<ItemStack, Float> newScrapboxDrop = new AbstractMap.SimpleEntry<ItemStack, Float>(newOutput, scrapboxDrop.getValue());
             System.out.println("old drop="+scrapboxDrop+" new="+newScrapboxDrop);
             scrapboxDrops.set(i, newScrapboxDrop);
-        }
-    }*/
+        }*/
+    }
 
     /**
      *
