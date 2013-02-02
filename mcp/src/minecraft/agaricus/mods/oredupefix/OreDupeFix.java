@@ -158,38 +158,30 @@ public class OreDupeFix {
     }
 
     public static void replaceIC2ScrapboxDrops() {
-        List<ItemScrapbox.Drop> dropList = ItemScrapbox.dropList;
+        // Replace scrapbox drops in the item itself -- cannot use the API
+        // Ic2Recipes.getScrapboxDrops() call since it returns a copy :(
 
-        System.out.println("droplist="+dropList);
+        try {
+            List dropList = ItemScrapbox.dropList;
 
-        for (ItemScrapbox.Drop drop : dropList) {
-            ItemStack output = ReflectionHelper.getPrivateValue(ItemScrapbox.Drop.class, drop, 0);
+            // 'Drop' inner class
+            Class dropClass = ItemScrapbox.class.getDeclaredClasses()[0];
 
-            ItemStack newOutput = getPreferredOre(output);
-            if (newOutput == null) {
-                continue;
+            for (int i = 0; i < dropList.size(); i++) {
+                Object drop = dropList.get(i);
+
+                ItemStack output = ReflectionHelper.getPrivateValue((Class<? super Object>)dropClass, drop, 0);
+
+                ItemStack newOutput = getPreferredOre(output);
+                if (newOutput == null) {
+                    continue;
+                }
+
+                ReflectionHelper.setPrivateValue(dropClass, drop, newOutput, 0);
             }
-
-            ReflectionHelper.setPrivateValue(ItemScrapbox.Drop.class, drop, newOutput, 0);
+        } catch (Throwable t) {
+            System.out.println("Failed to replace IC2 scrapbox drops: "+t);
         }
-
-
-        /* can't use this, ic2.core.item.ItemScrapbox getDropList() returns a copy :(
-        List<Map.Entry<ItemStack, Float>> scrapboxDrops = Ic2Recipes.getScrapboxDrops();
-
-        for (int i = 0; i < scrapboxDrops.size(); i++) {
-            Map.Entry<ItemStack, Float> scrapboxDrop = scrapboxDrops.get(i);
-
-            ItemStack output = scrapboxDrop.getKey();
-            ItemStack newOutput = getPreferredOre(output);
-            if (newOutput == null) {
-                continue;
-            }
-
-            Map.Entry<ItemStack, Float> newScrapboxDrop = new AbstractMap.SimpleEntry<ItemStack, Float>(newOutput, scrapboxDrop.getValue());
-            System.out.println("old drop="+scrapboxDrop+" new="+newScrapboxDrop);
-            scrapboxDrops.set(i, newScrapboxDrop);
-        }*/
     }
 
     /**

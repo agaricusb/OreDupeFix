@@ -11,7 +11,7 @@ import java.util.Vector;
 public class ItemScrapbox {
     public static List<Drop> dropList = new Vector<Drop>();
 
-    public class Drop {
+    static class Drop {
         ItemStack itemStack;
     }
 }
