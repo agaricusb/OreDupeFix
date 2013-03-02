@@ -21,7 +21,7 @@
       <type>jar</type>
       <scope>compile</scope>
     </dependency>
-    <!-- see ic2-install.sh -->
+    <!-- If you get "is missing, no dependency information available" error, run: mvn initialize -->
     <dependency>
       <groupId>net.industrial-craft</groupId>
       <artifactId>ic2</artifactId>
@@ -47,23 +47,55 @@
           <target>1.5</target>
         </configuration>
       </plugin>
-      <!-- reobfuscate -->
       <plugin>
             <groupId>net.md-5.SpecialSource</groupId>
             <artifactId>specialsource-maven-plugin</artifactId>
             <version>1.0-SNAPSHOT</version>
             <executions>
+            <!-- TODO: forge
                 <execution>
+                    <id>install-remapped-minecraft</id>
+                    <phase>initialize</phase>
+                    <goals>
+                        <goal>install-remapped-file</goal>
+                    </goals>
+                    <configuration>
+                        <groupId>net.minecraft</groupId>
+                        <artifactId>minecraft-server-pkgmcp</artifactId>
+                        <version>1.4.7</version>
+                        <inJar>http://assets.minecraft.net/1_4_7/minecraft_server.jar</inJar>
+                        <srgIn>https://raw.github.com/MinecraftForge/FML/1bd6847bc80f51b06544068011f7df3218f13999/conf/</srgIn>
+                    </configuration>
+                </execution>
+                -->
+
+                <execution>
+                    <id>install-remapped-ic2</id>
+                    <phase>initialize</phase>
+                    <goals>
+                        <goal>install-remapped-file</goal>
+                    </goals>
+                    <configuration>
+                        <groupId>net.industrial-craft</groupId>
+                        <artifactId>ic2</artifactId>
+                        <version>1.115.222-lf</version>
+                        <inJar>http://ic2api.player.to:8080/job/IC2_lf/222/artifact/packages/industrialcraft-2_1.115.222-lf.jar</inJar>
+                        <srgIn>https://raw.github.com/MinecraftForge/FML/1bd6847bc80f51b06544068011f7df3218f13999/conf/</srgIn>
+                    </configuration>
+                </execution>
+
+                <execution>
+                    <id>reobfuscate</id>
                     <phase>package</phase>
                     <goals>
                         <goal>remap</goal>
                     </goals>
+                    <configuration>
+                        <srgIn>https://raw.github.com/MinecraftForge/FML/1bd6847bc80f51b06544068011f7df3218f13999/conf/</srgIn>
+                        <reverse>true</reverse>
+                    </configuration>
                 </execution>
             </executions>
-            <configuration>
-                <srgIn>https://raw.github.com/MinecraftForge/FML/1bd6847bc80f51b06544068011f7df3218f13999/conf/</srgIn>
-                <reverse>true</reverse>
-            </configuration>
         </plugin>
     </plugins>
   </build>
