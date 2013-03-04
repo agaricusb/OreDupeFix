@@ -8,6 +8,12 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <minecraft.version>1.4.7</minecraft.version>
+    <minecraft_version>1_4_7</minecraft_version>
+    <forge.version>6.6.2.534</forge.version>
+    <mcp.mappings>https://raw.github.com/MinecraftForge/FML/1bd6847bc80f51b06544068011f7df3218f13999/conf/</mcp.mappings>
+    <ic2.build>222</ic2.build>
+    <ic2.version>1.115.${ic2.build}-lf</ic2.version>
   </properties>
 
   <dependencies>
@@ -15,14 +21,14 @@
     <dependency>
       <groupId>net.minecraftforge</groupId>
       <artifactId>minecraft-forge</artifactId>
-      <version>6.6.2.534</version>
+      <version>${forge.version}</version>
       <type>jar</type>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>net.industrial-craft</groupId>
       <artifactId>ic2</artifactId>
-      <version>1.115.222-lf</version>
+      <version>${ic2.version}</version>
       <type>jar</type>
       <scope>compile</scope>
     </dependency>
@@ -58,12 +64,13 @@
                     <configuration>
                         <groupId>net.minecraftforge</groupId>
                         <artifactId>minecraft-forge</artifactId>
-                        <version>6.6.2.534</version>
+                        <version>${forge.version}</version>
                         <inJars>
-                            <param>http://assets.minecraft.net/1_4_7/minecraft_server.jar</param>
-                            <param>http://files.minecraftforge.net/minecraftforge/minecraftforge-universal-1.4.7-6.6.2.534.zip</param>
+                            <param>http://assets.minecraft.net/${minecraft_version}/minecraft_server.jar</param>
+                            <param>http://assets.minecraft.net/${minecraft_version}/minecraft.jar</param>
+                            <param>http://files.minecraftforge.net/minecraftforge/minecraftforge-universal-${minecraft.version}-${forge.version}.zip</param>
                         </inJars>
-                        <srgIn>https://raw.github.com/MinecraftForge/FML/1bd6847bc80f51b06544068011f7df3218f13999/conf/</srgIn>
+                        <srgIn>${mcp.mappings}</srgIn>
                     </configuration>
                 </execution>
 
@@ -76,9 +83,9 @@
                     <configuration>
                         <groupId>net.industrial-craft</groupId>
                         <artifactId>ic2</artifactId>
-                        <version>1.115.222-lf</version>
+                        <version>${ic2.version}</version>
                         <inJars>
-                            <param>http://ic2api.player.to:8080/job/IC2_lf/222/artifact/packages/industrialcraft-2_1.115.222-lf.jar</param>
+                            <param>http://ic2api.player.to:8080/job/IC2_lf/${ic2.build}/artifact/packages/industrialcraft-2_${ic2.version}.jar</param>
                         </inJars>
                         <srgIn>https://raw.github.com/MinecraftForge/FML/1bd6847bc80f51b06544068011f7df3218f13999/conf/</srgIn>
                     </configuration>
@@ -91,8 +98,11 @@
                         <goal>remap</goal>
                     </goals>
                     <configuration>
-                        <srgIn>https://raw.github.com/MinecraftForge/FML/1bd6847bc80f51b06544068011f7df3218f13999/conf/</srgIn>
+                        <srgIn>${mcp.mappings}</srgIn>
                         <reverse>true</reverse>
+                        <remappedDependencies>
+                            <param>net.minecraftforge:minecraft-forge:${forge.version}:jar</param>
+                        </remappedDependencies>
                     </configuration>
                 </execution>
             </executions>
