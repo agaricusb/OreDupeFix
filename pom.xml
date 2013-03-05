@@ -87,7 +87,11 @@
                         <inJars>
                             <param>http://ic2api.player.to:8080/job/IC2_lf/${ic2.build}/artifact/packages/industrialcraft-2_${ic2.version}.jar</param>
                         </inJars>
-                        <srgIn>https://raw.github.com/MinecraftForge/FML/1bd6847bc80f51b06544068011f7df3218f13999/conf/</srgIn>
+                        <srgIn>${mcp.mappings}</srgIn>
+                        <accessTransformers>
+                            <param>https://raw.github.com/MinecraftForge/FML/20337b6e8aec12d2793edb376bdf8dea119cba5f/common/fml_at.cfg</param>
+                            <param>https://raw.github.com/MinecraftForge/MinecraftForge/4299aa22ffcc7770499b5edc4ec330da042a5eb8/common/forge_at.cfg</param>
+                        </accessTransformers>
                     </configuration>
                 </execution>
 
