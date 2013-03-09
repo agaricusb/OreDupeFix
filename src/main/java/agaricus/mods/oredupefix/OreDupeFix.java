@@ -66,6 +66,11 @@ public class OreDupeFix {
                 String name = entry.getKey();
                 Property property = entry.getValue();
 
+                if (property.value.length() == 0) {
+                    // not set
+                    continue;
+                }
+
                 oreName2PreferredMod.put(name, property.value);
             }
 
@@ -100,8 +105,6 @@ public class OreDupeFix {
         replaceIC2MachineRecipes(Ic2Recipes.getMaceratorRecipes());
         replaceIC2ScrapboxDrops();
 
-        // TODO: dungeon loot
-
         // TE machines
         /*
         // TODO - check TE API for 'replaceable recipes' setting
@@ -126,6 +129,15 @@ public class OreDupeFix {
         FMLLog.log(Level.FINE, "OreDupeFix initializing defaults");
 
         HashMap<String, String> m = new HashMap<String, String>();
+
+        // populate with all ore names for documentation purposes, no overrides
+        Map<Integer, ItemData> idMap = ReflectionHelper.getPrivateValue(GameData.class, null, "idMap");
+        List<String> oreNames = Arrays.asList(OreDictionary.getOreNames());
+        Collections.sort(oreNames);
+        for (String oreName : oreNames) {
+            m.put(oreName, "");
+        }
+
         // a reasonable set of defaults
         m.put("ingotCopper", "RedPowerBase");
         m.put("ingotTin", "RedPowerBase");
