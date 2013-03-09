@@ -124,7 +124,8 @@ public class OreDupeFix {
             if (replaceIC2Macerator) replaceIC2MachineRecipes(Ic2Recipes.getMaceratorRecipes());
             if (replaceIC2Scrapbox) replaceIC2ScrapboxDrops();
         } catch (Throwable t) {
-            FMLLog.log(Level.WARNING, "Failed to replace IC2 machine recipes: "+t.getMessage()+", fix this (update?) or turn off replaceIC2* in config");
+            t.printStackTrace();
+            FMLLog.log(Level.WARNING, "Failed to replace IC2 machine recipes: "+t.getLocalizedMessage()+", fix this (update?) or turn off replaceIC2* in config");
         }
 
         // TE machines
