@@ -45,6 +45,15 @@ public class OreDupeFix {
 
     private static boolean verbose;
 
+    private static boolean replaceCrafting;
+    private static boolean replaceFurnace;
+    private static boolean replaceFurnaceInsensitive;
+    private static boolean replaceDungeonLoot;
+    private static boolean replaceIC2Compressor;
+    private static boolean replaceIC2Extractor;
+    private static boolean replaceIC2Macerator;
+    private static boolean replaceIC2Scrapbox;
+
     @PreInit
     public static void preInit(FMLPreInitializationEvent event) {
         oreName2PreferredMod = new HashMap<String, String>();
@@ -76,6 +85,16 @@ public class OreDupeFix {
 
             shouldDumpOreDict = cfg.get(Configuration.CATEGORY_GENERAL, "dumpOreDict", true).getBoolean(true);
             verbose = cfg.get(Configuration.CATEGORY_GENERAL, "verbose", true).getBoolean(true);
+
+            // TODO: refactor
+            replaceCrafting = cfg.get(Configuration.CATEGORY_GENERAL, "replaceCrafting", true).getBoolean(true);
+            replaceFurnace = cfg.get(Configuration.CATEGORY_GENERAL, "replaceFurnace", true).getBoolean(true);
+            replaceFurnaceInsensitive = cfg.get(Configuration.CATEGORY_GENERAL, "replaceFurnaceInsensitive", true).getBoolean(true);
+            replaceDungeonLoot = cfg.get(Configuration.CATEGORY_GENERAL, "replaceDungeonLoot", true).getBoolean(true);
+            replaceIC2Compressor = cfg.get(Configuration.CATEGORY_GENERAL, "replaceIC2Compressor", true).getBoolean(true);
+            replaceIC2Extractor = cfg.get(Configuration.CATEGORY_GENERAL, "replaceIC2Extractor", true).getBoolean(true);
+            replaceIC2Macerator = cfg.get(Configuration.CATEGORY_GENERAL, "replaceIC2Macerator", true).getBoolean(true);
+            replaceIC2Scrapbox = cfg.get(Configuration.CATEGORY_GENERAL, "replaceIC2Scrapbox", true).getBoolean(true);
         } catch (Exception e) {
             FMLLog.log(Level.SEVERE, e, "OreDupeFix had a problem loading it's configuration");
         } finally {
@@ -93,17 +112,16 @@ public class OreDupeFix {
 
         loadPreferredOres();
 
-        replaceCraftingRecipes();
-        replaceFurnaceRecipes();
-        replaceFurnaceRecipesInsensitive();
-        replaceDungeonLoot();
+        if (replaceCrafting) replaceCraftingRecipes();
+        if (replaceFurnace) replaceFurnaceRecipes();
+        if (replaceFurnaceInsensitive) replaceFurnaceRecipesInsensitive();
+        if (replaceDungeonLoot) replaceDungeonLoot();
 
         // IC2 machines
-        // TODO: make optional
-        replaceIC2MachineRecipes(Ic2Recipes.getCompressorRecipes());
-        replaceIC2MachineRecipes(Ic2Recipes.getExtractorRecipes());
-        replaceIC2MachineRecipes(Ic2Recipes.getMaceratorRecipes());
-        replaceIC2ScrapboxDrops();
+        if (replaceIC2Compressor) replaceIC2MachineRecipes(Ic2Recipes.getCompressorRecipes());
+        if (replaceIC2Extractor) replaceIC2MachineRecipes(Ic2Recipes.getExtractorRecipes());
+        if (replaceIC2Macerator) replaceIC2MachineRecipes(Ic2Recipes.getMaceratorRecipes());
+        if (replaceIC2Scrapbox) replaceIC2ScrapboxDrops();
 
         // TE machines
         /*
