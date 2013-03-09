@@ -161,12 +161,22 @@ public class OreDupeFix {
         m.put("ingotTin", "RedPowerBase");
         m.put("ingotBronze", "IC2");
         m.put("ingotSilver", "RedPowerBase");
+        m.put("ingotLead", "ThermalExpansion");
         m.put("dustBronze", "ThermalExpansion");
         m.put("dustIron", "ThermalExpansion");
         m.put("dustTin", "ThermalExpansion");
         m.put("dustSilver", "ThermalExpansion");
         m.put("dustCopper", "ThermalExpansion");
         m.put("dustGold", "ThermalExpansion");
+        m.put("dustObsidian", "ThermalExpansion");
+        m.put("nuggetTin", "ThermalExpansion");
+        m.put("nuggetCopper", "Thaumcraft");
+        m.put("nuggetIron", "Thaumcraft");
+        m.put("nuggetSilver", "Thaumcraft");
+        m.put("nuggetTin", "Thaumcraft");
+        m.put("oreCopper", "IC2");
+        m.put("oreSilver", "ThermalExpansion");
+        m.put("oreTin", "IC2");
 
         for (Map.Entry<String, String> entry : m.entrySet()) {
             String oreName = entry.getKey();
