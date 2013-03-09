@@ -11,5 +11,5 @@ For more information, see the [IC2 forum thread](http://forum.industrial-craft.n
 
 .
  
-    mvn initialize
+    mvn initialize -P -built
     mvn package
