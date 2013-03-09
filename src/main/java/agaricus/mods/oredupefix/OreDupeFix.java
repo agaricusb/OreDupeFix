@@ -118,10 +118,14 @@ public class OreDupeFix {
         if (replaceDungeonLoot) replaceDungeonLoot();
 
         // IC2 machines
-        if (replaceIC2Compressor) replaceIC2MachineRecipes(Ic2Recipes.getCompressorRecipes());
-        if (replaceIC2Extractor) replaceIC2MachineRecipes(Ic2Recipes.getExtractorRecipes());
-        if (replaceIC2Macerator) replaceIC2MachineRecipes(Ic2Recipes.getMaceratorRecipes());
-        if (replaceIC2Scrapbox) replaceIC2ScrapboxDrops();
+        try {
+            if (replaceIC2Compressor) replaceIC2MachineRecipes(Ic2Recipes.getCompressorRecipes());
+            if (replaceIC2Extractor) replaceIC2MachineRecipes(Ic2Recipes.getExtractorRecipes());
+            if (replaceIC2Macerator) replaceIC2MachineRecipes(Ic2Recipes.getMaceratorRecipes());
+            if (replaceIC2Scrapbox) replaceIC2ScrapboxDrops();
+        } catch (Throwable t) {
+            FMLLog.log(Level.WARNING, "Failed to replace IC2 machine recipes: "+t.getMessage()+", fix this (update?) or turn off replaceIC2* in config");
+        }
 
         // TE machines
         /*
