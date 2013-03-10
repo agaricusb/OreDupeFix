@@ -1,3 +1,11 @@
+2013/03/09  2.0-1.4.7
+    * Add all ore names to generated default config for easier custom configuration
+    * Add support for disabling recipe type replacements in config
+    * Add more defaults to default config
+    * Allow running even if IC2 recipes cannot be replaced
+    * Blank preferred ore entries will now be ignored
+    * New build process using SpecialSource (for development; no end-user visible change)
+
 2013/02/01  1.4
     * Fix replaced stack size (e.g. crafting copper block -> 9 ingots)
     * Add default silver ingot preference set to RP2
