@@ -28,7 +28,7 @@ import net.minecraftforge.oredict.ShapelessOreRecipe;
 import java.util.*;
 import java.util.logging.Level;
 
-@Mod(modid = "OreDupeFix", name = "OreDupeFix", version = "2.0-1.4.7") // TODO: version from resource
+@Mod(modid = "OreDupeFix", name = "OreDupeFix", version = "2.0-1.5") // TODO: version from resource
 @NetworkMod(clientSideRequired = false, serverSideRequired = false)
 public class OreDupeFix {
     /**
@@ -65,7 +65,7 @@ public class OreDupeFix {
         try {
             cfg.load();
 
-            if (cfg.categories.size() == 0) {
+            if (cfg.getCategoryNames().size() == 0) {
                 loadDefaults(cfg);
             }
 
@@ -75,12 +75,12 @@ public class OreDupeFix {
                 String name = entry.getKey();
                 Property property = entry.getValue();
 
-                if (property.value.length() == 0) {
+                if (property.getString().length() == 0) {
                     // not set
                     continue;
                 }
 
-                oreName2PreferredMod.put(name, property.value);
+                oreName2PreferredMod.put(name, property.getString());
             }
 
             shouldDumpOreDict = cfg.get(Configuration.CATEGORY_GENERAL, "dumpOreDict", true).getBoolean(true);
