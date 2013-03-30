@@ -1,3 +1,10 @@
+2013/03/30  3.0
+    * Update for Minecraft 1.5.1, Forge 7.7.1.622, IC2 1.115.268
+    * Now built as a "version-independent" mod (srgnames)
+
+2013/03/10  2.0-1.5
+    * Update for Minecraft 1.5 prerelease
+
 2013/03/09  2.0-1.4.7
     * Add all ore names to generated default config for easier custom configuration
     * Add support for disabling recipe type replacements in config
