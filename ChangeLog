@@ -1,3 +1,8 @@
+2013/04/25  3.1
+    * Update for compatibility with IC2 1.115.304+
+    * Use srgnames for reflection to improve mod compatibility
+    * Improve output formatting for dumpOreDict
+
 2013/03/30  3.0
     * Update for Minecraft 1.5.1, Forge 7.7.1.622, IC2 1.115.268
     * Now built as a "version-independent" mod (srgnames)
