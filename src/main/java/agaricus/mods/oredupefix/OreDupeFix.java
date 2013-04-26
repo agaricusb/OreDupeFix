@@ -10,7 +10,8 @@ import cpw.mods.fml.common.network.NetworkMod;
 import cpw.mods.fml.common.registry.GameData;
 import cpw.mods.fml.common.registry.ItemData;
 import cpw.mods.fml.relauncher.ReflectionHelper;
-import ic2.api.Ic2Recipes;
+import ic2.api.recipe.IMachineRecipeManager;
+import ic2.api.recipe.Recipes;
 import ic2.core.AdvRecipe;
 import ic2.core.AdvShapelessRecipe;
 import ic2.core.item.ItemScrapbox;
@@ -119,9 +120,9 @@ public class OreDupeFix {
 
         // IC2 machines
         try {
-            if (replaceIC2Compressor) replaceIC2MachineRecipes(Ic2Recipes.getCompressorRecipes());
-            if (replaceIC2Extractor) replaceIC2MachineRecipes(Ic2Recipes.getExtractorRecipes());
-            if (replaceIC2Macerator) replaceIC2MachineRecipes(Ic2Recipes.getMaceratorRecipes());
+            if (replaceIC2Compressor) replaceIC2MachineRecipes(Recipes.compressor);
+            if (replaceIC2Extractor) replaceIC2MachineRecipes(Recipes.extractor);
+            if (replaceIC2Macerator) replaceIC2MachineRecipes(Recipes.macerator);
             if (replaceIC2Scrapbox) replaceIC2ScrapboxDrops();
         } catch (Throwable t) {
             t.printStackTrace();
@@ -380,10 +381,11 @@ public class OreDupeFix {
         }
     }
 
+    @SuppressWarnings("unchecked")
+    public static void replaceIC2MachineRecipes(IMachineRecipeManager machineRecipesManager) {
+        Map machineRecipes = machineRecipesManager.getRecipes();
 
-    public static void replaceIC2MachineRecipes(List<Map.Entry<ItemStack, ItemStack>> machineRecipes) {
-         for (int i = 0; i < machineRecipes.size(); i += 1) {
-            Map.Entry<ItemStack, ItemStack> entry = machineRecipes.get(i);
+        for (Map.Entry<ItemStack, ItemStack> entry : (Set<Map.Entry<ItemStack, ItemStack>>) machineRecipes.entrySet()) {
             ItemStack input = entry.getKey();
             ItemStack output = entry.getValue();
 
@@ -395,6 +397,8 @@ public class OreDupeFix {
     }
 
     public static void replaceIC2ScrapboxDrops() {
+        /* TODO: update
+
         // Replace scrapbox drops in the item itself -- cannot use the API
         // Ic2Recipes.getScrapboxDrops() call since it returns a copy :(
 
@@ -420,6 +424,7 @@ public class OreDupeFix {
         } catch (Throwable t) {
             System.out.println("Failed to replace IC2 scrapbox drops: "+t);
         }
+         */
     }
 }
 

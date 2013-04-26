@@ -26,8 +26,9 @@
   </repositories>
 
   <properties>
-    <ic2.build>268</ic2.build>
+    <ic2.build>304</ic2.build>
     <ic2.version>1.115.${ic2.build}-lf</ic2.version>
+    <ic2.mcp.mappings>https://raw.github.com/agaricusb/MinecraftRemapping/4af022e82cd869f58668e2441360678bcfca1ab4/1.5.1/numpkg2pkgmcp.srg</ic2.mcp.mappings>
   </properties>
 
   <profiles>
@@ -75,7 +76,7 @@
                         <inJars>
                             <param>http://ic2api.player.to:8080/job/IC2_lf/${ic2.build}/artifact/packages/industrialcraft-2_${ic2.version}.jar</param>
                         </inJars>
-                        <srgIn>${mcp.mappings}</srgIn> <!-- note: will need to update to srgnames->csvnames (instead of obf->csvnames) if IC2 goes version-independent -->
+                        <srgIn>${ic2.mcp.mappings}</srgIn>
                     </configuration>
                 </execution>
             </executions>
