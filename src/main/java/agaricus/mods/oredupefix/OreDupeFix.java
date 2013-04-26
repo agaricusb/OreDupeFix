@@ -404,8 +404,12 @@ public class OreDupeFix {
             IMachineRecipeManager backend = (IMachineRecipeManager) ReflectionHelper.getPrivateValue(managerClass, wrapper, "backend");
 
             Map drops = backend.getRecipes();
+            Map newDrops = new HashMap();
 
-            for (Object outputObject : drops.keySet()) {
+            Iterator<Object> iter = drops.keySet().iterator();
+            while (iter.hasNext()) {
+                Object outputObject = iter.next();
+
                 ItemStack output = (ItemStack) outputObject;
                 Object probability = drops.get(outputObject);
 
@@ -415,9 +419,11 @@ public class OreDupeFix {
                 }
 
                 log("Modifying IC2 scrapbox drop, replacing "+output.itemID+":"+output.getItemDamage()+" -> "+newOutput.itemID+":"+newOutput.getItemDamage());
-                drops.remove(output);
-                drops.put(output, probability);
+                iter.remove();
+                newDrops.put(output, probability);
             }
+
+            drops.putAll(newDrops);
         } catch (Throwable t) {
             System.out.println("Failed to replace IC2 scrapbox drops: "+t);
         }
