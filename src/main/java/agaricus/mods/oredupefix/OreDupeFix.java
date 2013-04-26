@@ -399,7 +399,11 @@ public class OreDupeFix {
     @SuppressWarnings("unchecked")
     public static void replaceIC2ScrapboxDrops() {
         try {
-            Map drops = Recipes.scrapboxDrops.getRecipes();
+            IMachineRecipeManager wrapper = Recipes.scrapboxDrops;
+            Class managerClass = ItemScrapbox.class.getDeclaredClasses()[0]; // ItemScrapbox$ScrapboxRecipeManager
+            IMachineRecipeManager backend = (IMachineRecipeManager) ReflectionHelper.getPrivateValue(managerClass, wrapper, "backend");
+
+            Map drops = backend.getRecipes();
 
             for (Object outputObject : drops.keySet()) {
                 ItemStack output = (ItemStack) outputObject;
