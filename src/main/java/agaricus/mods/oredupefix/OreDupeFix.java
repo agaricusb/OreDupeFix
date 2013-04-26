@@ -396,22 +396,14 @@ public class OreDupeFix {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public static void replaceIC2ScrapboxDrops() {
-        /* TODO: update
-
-        // Replace scrapbox drops in the item itself -- cannot use the API
-        // Ic2Recipes.getScrapboxDrops() call since it returns a copy :(
-
         try {
-            List dropList = ItemScrapbox.dropList;
+            Map drops = Recipes.scrapboxDrops.getRecipes();
 
-            // 'Drop' inner class
-            Class dropClass = ItemScrapbox.class.getDeclaredClasses()[0];
-
-            for (int i = 0; i < dropList.size(); i++) {
-                Object drop = dropList.get(i);
-
-                ItemStack output = ReflectionHelper.getPrivateValue((Class<? super Object>)dropClass, drop, 0);
+            for (Object outputObject : drops.keySet()) {
+                ItemStack output = (ItemStack) outputObject;
+                Object probability = drops.get(outputObject);
 
                 ItemStack newOutput = getPreferredOre(output);
                 if (newOutput == null) {
@@ -419,12 +411,12 @@ public class OreDupeFix {
                 }
 
                 log("Modifying IC2 scrapbox drop, replacing "+output.itemID+":"+output.getItemDamage()+" -> "+newOutput.itemID+":"+newOutput.getItemDamage());
-                ReflectionHelper.setPrivateValue(dropClass, drop, newOutput, 0);
+                drops.remove(output);
+                drops.put(output, probability);
             }
         } catch (Throwable t) {
             System.out.println("Failed to replace IC2 scrapbox drops: "+t);
         }
-         */
     }
 }
 
