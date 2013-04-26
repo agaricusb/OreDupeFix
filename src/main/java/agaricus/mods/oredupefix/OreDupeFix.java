@@ -241,15 +241,17 @@ public class OreDupeFix {
         Collections.sort(oreNames);
 
         for (String oreName : oreNames) {
-            System.out.print("ore: " + oreName + ": ");
+            StringBuffer sb = new StringBuffer();
+
+            sb.append("ore: " + oreName + ": ");
             ArrayList<ItemStack> oreItems = OreDictionary.getOres(oreName);
             for (ItemStack oreItem : oreItems) {
                 ItemData itemData = idMap.get(oreItem.itemID);
                 String modID = itemData.getModId();
 
-                System.out.print(oreItem.itemID + ":" + oreItem.getItemDamage() + "=" + modID + ", ");
+                sb.append(oreItem.itemID + ":" + oreItem.getItemDamage() + "=" + modID + ", ");
             }
-            System.out.println("");
+            System.out.println(sb);
         }
     }
 
@@ -418,7 +420,7 @@ public class OreDupeFix {
                     continue;
                 }
 
-                log("Modifying IC2 scrapbox drop, replacing "+output.itemID+":"+output.getItemDamage()+" -> "+newOutput.itemID+":"+newOutput.getItemDamage());
+                log("Modifying IC2 scrapbox drop, replacing " + output.itemID + ":" + output.getItemDamage() + " -> " + newOutput.itemID + ":" + newOutput.getItemDamage());
                 iter.remove();
                 newDrops.put(output, probability);
             }
