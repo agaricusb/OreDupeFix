@@ -309,9 +309,9 @@ public class OreDupeFix {
 
     public static void setCraftingRecipeOutput(IRecipe iRecipe, ItemStack output) {
         if (iRecipe instanceof ShapedRecipes) {
-            ReflectionHelper.setPrivateValue(ShapedRecipes.class,(ShapedRecipes)iRecipe, output, "e"/*"recipeOutput"*/); // TODO: avoid hardcoding obf
+            ReflectionHelper.setPrivateValue(ShapedRecipes.class,(ShapedRecipes)iRecipe, output, "field_77575_e"); // recipeOutput
         } else if (iRecipe instanceof ShapelessRecipes) {
-            ReflectionHelper.setPrivateValue(ShapelessRecipes.class,(ShapelessRecipes)iRecipe, output, "a"/*"recipeOutput"*/);
+            ReflectionHelper.setPrivateValue(ShapelessRecipes.class,(ShapelessRecipes)iRecipe, output, "field_77580_a"); // recipeOutput
         } else if (iRecipe instanceof ShapelessOreRecipe) {
             ReflectionHelper.setPrivateValue(ShapelessOreRecipe.class,(ShapelessOreRecipe)iRecipe, output, "output");
         } else if (iRecipe instanceof ShapedOreRecipe) {
