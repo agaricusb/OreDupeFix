@@ -163,10 +163,10 @@ public class OreDupeFix {
         }
 
         // a reasonable set of defaults
-        m.put("ingotCopper", "RedPowerBase");
-        m.put("ingotTin", "RedPowerBase");
+        m.put("ingotCopper", "ThermalExpansion");
+        m.put("ingotTin", "ThermalExpansion");
         m.put("ingotBronze", "IC2");
-        m.put("ingotSilver", "RedPowerBase");
+        m.put("ingotSilver", "ThermalExpansion");
         m.put("ingotLead", "ThermalExpansion");
         m.put("dustBronze", "ThermalExpansion");
         m.put("dustIron", "ThermalExpansion");
